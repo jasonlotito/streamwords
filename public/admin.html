@@ -5,7 +5,7 @@
   <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Document</title>
+  <title>StreamWords Admin</title>
   <style>
       * {
           font-family: sans-serif;
@@ -42,7 +42,6 @@
           font-size: 2em;
           font-weight: bold;
       }
-
 
       #debugArea {
           display: none;
@@ -90,6 +89,7 @@
     <span>
       <label for="setWord-setWord">Set Word</label>
       <input type="text" name="message" id="setWord-setWord">
+      <p>Recommended to keep the number of letters fewer than 8.</p>
     </span>
     <span>
       <button type="submit">Set Word</button>
@@ -193,7 +193,6 @@
   if (db.hasWord()) {
     inputWord.value = db.getWord();
   }
-
 
   // Easy Form Message
   const formMessage = document.getElementsByClassName('formMessage')

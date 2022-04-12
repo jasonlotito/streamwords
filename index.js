@@ -5,6 +5,7 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 let reload = true;
+
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html')
 });
@@ -13,10 +14,17 @@ app.get('/admin', (req, res) => {
   res.sendFile(__dirname + '/public/admin.html')
 });
 
+app.get('/webSocket.js', (req, res) => {
+  res.sendFile(__dirname + '/public/webSocket.js')
+})
+
 let hotReloading = function (socket) {
   reload && socket.emit('reload');
   reload = false;
 };
+
+const wordList = new Map();
+
 io.on('connection', (socket) => {
   hotReloading(socket);
   let room = '';
@@ -25,7 +33,12 @@ io.on('connection', (socket) => {
     socket.join(msg);
     room = msg;
     console.log(`joining ${msg}`)
-  })
+
+    if(wordList.has(room)) {
+      console.log('found');
+      socket.emit('setWord', wordList.get(room));
+    }
+  });
 
   socket.on('message', (msg) => {
     socket.to(room).emit('message', msg);
@@ -34,7 +47,8 @@ io.on('connection', (socket) => {
 
   socket.on('setWord', (msg) => {
     socket.to(room).emit('setWord', msg);
-    console.log(`setWord ${msg}`);
+    wordList.set(room, msg);
+    console.log(`setWord ${room}: ${msg}`);
   });
 });
 

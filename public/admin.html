@@ -23,10 +23,11 @@
 
       label {
           display: inline-block;
-          width: 200px;
+          /*width: 200px;*/
       }
 
       fieldset {
+          margin-top: 10px;
           display: flex;
           flex-direction: column;
           row-gap: 20px;
@@ -36,6 +37,18 @@
           border-right-style: ridge;
           border-top-style: groove;
           border-left-style: groove;
+      }
+
+      fieldset.buttons {
+          flex-direction: row;
+          gap: 10px;
+      }
+
+      h1 {
+          font-size: 2.2em;
+          font-weight: bold;
+          /*color: #fff;*/
+          text-align: center;
       }
 
       legend {
@@ -51,15 +64,67 @@
           background-color: transparent;
           border: 0;
       }
+
+      body {
+          /*background-color: #333;*/
+      }
+
+      .main {
+          /*background-color: #fff;*/
+          /*padding: 20px;*/
+          /*border-radius: 50px 50px 0 0;*/
+      }
+
+      body {
+          display: grid;
+          grid-gap: 1em;
+          grid: 'header' auto
+                'main' 1fr
+                'footer' auto
+              / 1fr;
+      }
+
+      @media (min-width: 40em) {
+          .main {
+              display: grid;
+              grid-gap: 1em;
+              grid: 'manage leaders words'
+              / 2fr 1fr 1fr;
+          }
+      }
+
+      header {
+          grid-area: header;
+      }
+
+      .main {
+          grid-area: main;
+      }
+
+      section.manage {
+          grid-area: manage;
+      }
+
+      section.info {
+          grid-area: info;
+      }
+
+      footer {
+          grid-area: footer;
+      }
   </style>
 </head>
 <body>
-<section id="debugArea">
-  <h1>Admin</h1>
-  <form id="form" onsubmit="return false;">
-    <fieldset>
-      <legend>All messages</legend>
-      <span>
+<header>
+  <h1>StreamWords Manager</h1>
+</header>
+<div class="main">
+  <section id="debugArea">
+    <h1>Admin</h1>
+    <form id="form" onsubmit="return false;">
+      <fieldset>
+        <legend>All messages</legend>
+        <span>
     <label for="messageType">
       Message Type:
     </label>
@@ -68,48 +133,84 @@
         <option value="setWord">setWord</option>
       </select>
     </span>
-      <span>
+        <span>
         <label for="messageValue">
         Message Value:
         </label>
         <input type="text" name="name" placeholder="younow name" id="messageValue" value="jasonml">
 
     </span>
-      <span>
+        <span>
       <button id="btnSendMessage">Send Message</button>
     </span>
-    </fieldset>
+      </fieldset>
 
-  </form>
-</section>
-<section>
-  <form action="setWord" class="formMessage">
-  <fieldset>
-    <legend>Set Word</legend>
-    <span>
+    </form>
+  </section>
+  <section class="manage">
+    <form action="setWord" class="formMessage">
+      <fieldset>
+        <legend>Set Word</legend>
+        <span>
       <label for="setWord-setWord">Set Word</label>
       <input type="text" name="message" id="setWord-setWord">
       <p>Recommended to keep the number of letters fewer than 8.</p>
     </span>
-    <span>
+        <span>
       <button type="submit">Set Word</button>
     </span>
-  </fieldset>
-  </form>
-  <a href="" id="__refresh"></a>
+      </fieldset>
+    </form>
 
-<!--  <h2>History</h2>-->
-<!--  <ul id="wordHistory"></ul>-->
-</section>
+    <form action="manage" class="formMessage">
+      <fieldset class="buttons">
+        <legend>Manage</legend>
+        <button type="submit" name="message" value="clear">Clear Board</button>
+      </fieldset>
+    </form>
+    <a href="" id="__refresh"></a>
+
+    <!--  <h2>History</h2>-->
+    <!--  <ul id="wordHistory"></ul>-->
+  </section>
+
+  <section class="leaders">
+    <h2>Leaders</h2>
+    <ul id="winnerList">
+
+    </ul>
+  </section>
+  <section class="words">
+    <h2>Words</h2>
+    <ul id="wordList">
+      <li>Lorem</li>
+      <li>ipsum</li>
+      <li>dolor</li>
+      <li>sit</li>
+      <li>amet</li>
+      <li>consectetur</li>
+      <li>Lorem</li>
+      <li>ipsum</li>
+      <li>dolor</li>
+      <li>sit</li>
+      <li>amet</li>
+      <li>consectetur</li>
+    </ul>
+  </section>
+</div>
+
+
+<footer></footer>
 <script src="/socket.io/socket.io.js"></script>
 <script>
   const messageValue = document.getElementById('messageValue')
   const messageType = document.getElementById('messageType')
   const btnSendMessage = document.getElementById('btnSendMessage');
+  const winnerList = document.getElementById('winnerList');
+  const wordList = document.getElementById('wordList');
   const inputWord = document.getElementById('setWord-setWord');
   // const wordHistory = document.getElementById('wordHistory');
   const params = new URLSearchParams(location.search);
-
 
   const KEYS = {
     currentWord: 'yourdle.currentWord',
@@ -117,24 +218,43 @@
     winners: 'yourdle.winners'
   }
 
-  const db = (()=>{
-    const watchList = {};
+  const db = (() => {
+    let watchList = {};
+    let winners = Array(10);
     const db = {
       addWord: (word) => {
         // db.wordHistory.add(db.currentWord.get());
         db.currentWord.set(word);
       },
       getWord: () => db.currentWord.get(),
-      hasWord: () => !! db.getWord(),
+      hasWord: () => !!db.getWord(),
       getHistory: () => db.wordHistory.get(),
       currentWord: {
-      get: () => localStorage.getItem(KEYS.currentWord),
+        get: () => localStorage.getItem(KEYS.currentWord),
         set: (word) => localStorage.setItem(KEYS.currentWord, word),
-    },
+      },
+      getWinners: () => {
+        if(!localStorage.getItem(KEYS.winners)) {
+          localStorage.setItem(KEYS.winners, JSON.stringify(winners));
+        } else {
+          winners = JSON.parse(localStorage.getItem(KEYS.winners));
+        }
+
+        return winners;
+      },
+      addWinner: (name, word) => {
+        winners.push({name, word});
+
+        if(winners.length>10) {
+          winners.shift();
+        }
+
+        localStorage.setItem(KEYS.winners, JSON.stringify(winners))
+      },
       wordHistory: (() => {
         let wordList = [];
 
-        if(!localStorage.getItem(KEYS.wordHistory)) {
+        if (!localStorage.getItem(KEYS.wordHistory)) {
           localStorage.setItem(KEYS.wordHistory, JSON.stringify(wordList));
         } else {
           wordList = JSON.parse(localStorage.getItem(KEYS.wordHistory));
@@ -153,9 +273,9 @@
           },
         }
       })(),
-      watch: (()=>{
+      watch: (() => {
         return (event, cb) => {
-          if(!watchList[event]) {
+          if (!watchList[event]) {
             watchList[event] = new Set();
           }
 
@@ -184,6 +304,21 @@
     socket.emit('join', params.get('name'))
   });
 
+  socket.on('winner', ({user, word}) => {
+    db.addWinner(user, word);
+    updateWinnerList();
+  });
+
+  function updateWinnerList() {
+    let winners = db.getWinners();
+    winnerList.innerHTML = '';
+    winners.forEach(({name, word}) => {
+      let li = document.createElement('li');
+      li.innerText = `${name} (${word})`
+      winnerList.appendChild(li);
+    })
+  }
+
   btnSendMessage.addEventListener('click', () => {
     console.log(`emitting message ${messageType.value} and ${messageValue.value}`);
     socket.to(params.get('name')).emit(messageType.value, messageValue.value);
@@ -198,12 +333,12 @@
   const formMessage = document.getElementsByClassName('formMessage')
   Array.from(formMessage).forEach(e => {
     e.addEventListener('submit', event => {
-      let message = {type: null, value: null};
+      let message = { type: null, value: null };
 
       Array.from(event.target.elements).forEach(el => {
         if (el.name === 'message' && el.value.trim().length > 0) {
           message.value = el.value.trim();
-          message.type = event.target.action.substring(event.target.action.lastIndexOf('/')+1);
+          message.type = event.target.action.substring(event.target.action.lastIndexOf('/') + 1);
         }
       });
 

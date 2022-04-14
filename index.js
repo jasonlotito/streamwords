@@ -5,6 +5,7 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 let reload = true;
+const { log, info, error, debug } = console;
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html')
@@ -28,13 +29,14 @@ const wordList = new Map();
 io.on('connection', (socket) => {
   hotReloading(socket);
   let room = '';
+  let winnerList = new Array(10);
 
   socket.on('join', (msg) => {
     socket.join(msg);
     room = msg;
     console.log(`joining ${msg}`)
 
-    if(wordList.has(room)) {
+    if (wordList.has(room)) {
       console.log('found');
       socket.emit('setWord', wordList.get(room));
     }
@@ -50,6 +52,28 @@ io.on('connection', (socket) => {
     wordList.set(room, msg);
     console.log(`setWord ${room}: ${msg}`);
   });
+
+  socket.on('winner', msg => {
+    socket.to(room).emit('winner', msg);
+    let { name, word } = JSON.parse(msg);
+    winnerList.push({ name, word })
+
+    if (winnerList.length > 10) {
+      winnerList.shift();
+    }
+  });
+
+  socket.on('manage', (msg) => {
+    socket.to(room).emit('manage', msg);
+    log(`manage ${room}: ${msg}`);
+
+    switch (msg) {
+      case 'clear':
+        log(`clear ${room}`)
+        wordList.delete(room);
+        break;
+    }
+  })
 });
 
 server.listen(3000, () => {

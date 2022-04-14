@@ -1,90 +1,114 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <style>
-        * {
-            font-family: Monospace;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
 
-        input, select, button {
-            padding: 5px 10px;
-            font-size: 16px;
-        }
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="https://js.pusher.com/3.0/pusher.min.js"></script>
+  <!--<script src="libs/jQuery/jquery-3.6.0.js"></script>-->
+  <script src="webSocket.js"></script>
+  <style>
+      * {
+          font-family: Monospace;
+      }
 
-        button {
-            cursor: pointer;
-        }
+      body {
+          margin: 0;
+          padding: 0;
+      }
 
-        label {
-            display: inline-block;
-            width: 300px;
-        }
+      input, select, button {
+          padding: 5px 10px;
+          font-size: 16px;
+      }
 
-        form {
-            display: flex;
-            flex-direction: column;
-        }
+      button {
+          cursor: pointer;
+      }
 
-        #word {
-            text-transform: uppercase;
-            font-size: 7em;
-            text-align: center;
-            display: block;
-        }
+      label {
+          display: inline-block;
+          width: 300px;
+      }
 
-        #word span {
-            display: inline-block;
-            border: 5px solid transparent;
-            border-bottom: 10px solid orangered;
-            margin: 0 5px;
-            /*color: orangered;*/
-            color: transparent;
-        }
+      form {
+          display: flex;
+          flex-direction: column;
+      }
 
-        #word span.found {
-            color: orangered;
-        }
+      #word {
+          text-transform: uppercase;
+          font-size: 7em;
+          text-align: center;
+          display: block;
+      }
 
-        #letters {
-            display: flex;
-            text-align: center;
-            justify-content: center;
-            font-size: 2em;
-            flex-wrap: wrap;
-            align-items: center;
-            max-width: 50%;
-            margin: 0 auto;
-        }
+      #word span {
+          display: inline-block;
+          border: 5px solid transparent;
+          border-bottom: 10px solid orangered;
+          margin: 0 5px;
+          /*color: orangered;*/
+          color: transparent;
+      }
 
-        #letters span {
-            color: #fff;
-            background-color: #333;
-            /*padding: 5px;*/
-            flex-basis: 10%;
-            border: 1px solid black;
-        }
-
-        #letters span.unused {
-            color: #000;
-        }
-
-        #letters span.used {
-            color: cornflowerblue;
-        }
-
-        #letters.hide {
-            display: none;
-        }
-
-        #letters span.found {
+      #word span.found {
           color: orangered;
-        }
-    </style>
+      }
+
+      #letters {
+          display: flex;
+          text-align: center;
+          justify-content: center;
+          font-size: 2em;
+          flex-wrap: wrap;
+          align-items: center;
+          max-width: 50%;
+          margin: 0 auto;
+      }
+
+      #letters span {
+          color: #fff;
+          background-color: #333;
+          /*padding: 5px;*/
+          flex-basis: 10%;
+          border: 1px solid black;
+      }
+
+      #letters span.unused {
+          color: #000;
+      }
+
+      #letters span.used {
+          color: cornflowerblue;
+      }
+
+      #letters.hide {
+          display: none;
+      }
+
+      #letters span.found {
+          color: orangered;
+      }
+
+      footer {
+          display: none;
+          position: fixed;
+          bottom: 0;
+          height: 40px;
+          background-color: #333;
+          color: #aaa;
+          width: 100%;
+          text-align: center;
+      }
+      footer.debug {
+          display: block;
+      }
+  </style>
 </head>
 <body>
 <div id="word" value=""></div>
@@ -92,148 +116,185 @@
 <!--<input type="text" name="name" placeholder="younow name" id="name" value="jasonml">-->
 <!--<button id="connect">Connect</button>-->
 <a href="" id="__refresh"></a>
-<script src="/socket.io/socket.io.js"></script>
-<script src="https://js.pusher.com/3.0/pusher.min.js"></script>
-<!--<script src="libs/jQuery/jquery-3.6.0.js"></script>-->
-<script src="webSocket.js"></script>
+
+<footer id="debugArea">
+  <input type="text" name="user" placeholder="user" style="width: 10em;" value="jasonml">
+  <input type="text" id="chat" placeholder="simulate-chat" style="width: 30em;" autofocus>
+</footer>
 <script>
-    let myId = 54729316;
-    let socket = io();
-    let activeWord = '';
-    const word = document.getElementById('word');
-    const elLetters = document.getElementById('letters');
-    const btnConnect = document.getElementById('connect');
-    const params = new URLSearchParams(location.search);
-    // We need a way to customize this
-    const alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
 
-    function resetLetters() {
-      elLetters.innerHTML = '';
-      alphabet.forEach(letter => {
-          let span = document.createElement('span');
-          span.innerText = letter;
-          elLetters.appendChild(span)
-      });
+
+
+
+  let myId = 54729316;
+  let socket = io();
+  let activeWord = '';
+  const word = document.getElementById('word');
+  const elLetters = document.getElementById('letters');
+  const btnConnect = document.getElementById('connect');
+  const params = new URLSearchParams(location.search);
+  // We need a way to customize this
+  const alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+
+  function sendFakeChat(name, comment) {
+    console.log(`${name} said ${comment}`)
+    processChatMessage({name, comment})
+  }
+
+  document.getElementById('chat').addEventListener('keyup', (e) => {
+    if (e.key === 'Enter' || e.code === 13) {
+      let el = e.target;
+      let val = el.value;
+      el.value = '';
+      e.preventDefault();
+      sendFakeChat(params.get('name'), val);
+      el.focus()
     }
+  })
 
+  if (location.search.toLowerCase().includes('debug=true')) {
+    document.getElementById('debugArea').classList.add('debug')
+  }
 
-    var wordObserver = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'attributes') {
-                if (mutation.attributeName === 'value') {
-                    let wordString = word.getAttribute('value');
-                    word.innerHTML = "";
-
-                    for (let x = 0; x < wordString.length; x++) {
-                        let ltr = wordString[x];
-                        let span = document.createElement('span');
-                        span.innerText = ltr;
-                        word.appendChild(span);
-                    }
-
-                    if (wordString.length > 0) {
-                        elLetters.classList.remove('hide');
-                    }
-
-
-                }
-            }
-        });
+  function resetLetters() {
+    elLetters.innerHTML = '';
+    alphabet.forEach(letter => {
+      let span = document.createElement('span');
+      span.innerText = letter;
+      elLetters.appendChild(span)
     });
+  }
 
-    wordObserver.observe(word, {
-        attributes: true
-    });
+  var wordObserver = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes') {
+        if (mutation.attributeName === 'value') {
+          let wordString = word.getAttribute('value');
+          word.innerHTML = "";
 
-    // btnConnect.addEventListener('click', () => {
-    //   socket.emit('join', name.value);
-    // });
+          for (let x = 0; x < wordString.length; x++) {
+            let ltr = wordString[x];
+            let span = document.createElement('span');
+            span.innerText = ltr;
+            word.appendChild(span);
+          }
 
-    socket.on('reload', function () {
-        console.log('reloading game');
-        document.getElementById('__refresh').setAttribute('href', document.location);
-        document.getElementById('__refresh').click();
-    });
+          if (wordString.length > 0) {
+            elLetters.classList.remove('hide');
+          } else {
+            elLetters.classList.add('hide')
+          }
 
-
-    socket.on('connect', () => {
-        socket.emit('join', params.get('name'));
-    });
-
-
-    socket.on('setWord', function (msg) {
-        word.setAttribute('value', msg);
-        activeWord = msg.toLowerCase();
-        resetLetters();
-    })
-
-    function checkLetterPosition(letter, pos) {
-        if (activeWord[pos] && activeWord[pos] === letter.toLowerCase()) {
-            return true;
-        }
-
-        return false;
-    }
-
-    function processWinner(msg) {
-        processLetters(msg.comment);
-        console.log(`winner: ${msg.name} with ${msg.comment}`);
-    }
-
-    function processLetters(message) {
-        let wordSearch = message.split(' ')[0];
-        // console.log(`failure: ${wordSearch}`)
-        let characters = Array.from(word.children);
-
-        for (let x = 0; x < wordSearch.length; x++) {
-            // console.log(wordSearch[x], x);
-            if (checkLetterPosition(wordSearch[x], x)) {
-                // console.log('found', wordSearch[x], x);
-                characters[x].classList.add('found');
-                markLetterFound(wordSearch[x], 1)
-            } else if (activeWord.includes(wordSearch[x])) {
-                markLetterFound(wordSearch[x], 0);
-            } else {
-                markLetterFound(wordSearch[x], -1);
-            }
-        }
-    }
-
-    function markLetterFound(letter, findType) {
-        let idx = alphabet.indexOf(letter);
-
-        if (idx === -1) {
-            return;
-        }
-        var lettersChildren = Array.from(elLetters.children);
-        switch (findType) {
-            case 1:
-                lettersChildren[idx].classList.add('found');
-                break;
-            case 0:
-              lettersChildren[idx].classList.add('used');
-                break;
-            default:
-              lettersChildren[idx].classList.add('unused');
-                break;
-        }
-    }
-
-    function processChatMessage(message) {
-      if (message.comment && message.comment.length === activeWord.length) {
-        if (message.comment.toLowerCase() === activeWord) {
-          processWinner(message);
-        } else {
-          processLetters(message.comment.toLowerCase());
         }
       }
+    });
+  });
+
+  wordObserver.observe(word, {
+    attributes: true
+  });
+
+  // btnConnect.addEventListener('click', () => {
+  //   socket.emit('join', name.value);
+  // });
+
+  socket.on('reload', function () {
+    console.log('reloading game');
+    document.getElementById('__refresh').setAttribute('href', document.location);
+    document.getElementById('__refresh').click();
+  });
+
+  socket.on('connect', () => {
+    socket.emit('join', params.get('name'));
+  });
+
+  socket.on('manage', (msg) => {
+    switch (msg) {
+      case 'clear':
+        setWord('');
+        break;
+    }
+  });
+
+  socket.on('setWord', function (msg) {
+    setWord(msg);
+  })
+
+  function setWord(w) {
+    word.setAttribute('value', w);
+    activeWord = w.toLowerCase();
+    resetLetters();
+  }
+
+  function checkLetterPosition(letter, pos) {
+    if (activeWord[pos] && activeWord[pos] === letter.toLowerCase()) {
+      return true;
     }
 
-    watchChatById(myId, (msg) => {
-        if (msg.comment && msg.comment.length > 0) {
-            processChatMessage(msg);
-        }
-    })
+    return false;
+  }
+
+  function processWinner(msg) {
+    processLetters(msg.comment);
+    socket.emit('winner', JSON.stringify({name:msg.name, word:activeWord}));
+    console.log(`winner: ${msg.name} with ${msg.comment}`);
+  }
+
+  function processLetters(message) {
+    let wordSearch = message.split(' ')[0];
+    // console.log(`failure: ${wordSearch}`)
+    let characters = Array.from(word.children);
+
+    for (let x = 0; x < wordSearch.length; x++) {
+      // console.log(wordSearch[x], x);
+      if (checkLetterPosition(wordSearch[x], x)) {
+        // console.log('found', wordSearch[x], x);
+        characters[x].classList.add('found');
+        markLetterFound(wordSearch[x], 1)
+      } else if (activeWord.includes(wordSearch[x])) {
+        markLetterFound(wordSearch[x], 0);
+      } else {
+        markLetterFound(wordSearch[x], -1);
+      }
+    }
+  }
+
+  function markLetterFound(letter, findType) {
+    let idx = alphabet.indexOf(letter);
+
+    if (idx === -1) {
+      return;
+    }
+    var lettersChildren = Array.from(elLetters.children);
+    switch (findType) {
+      case 1:
+        lettersChildren[idx].classList.add('found');
+        break;
+      case 0:
+        lettersChildren[idx].classList.add('used');
+        break;
+      default:
+        lettersChildren[idx].classList.add('unused');
+        break;
+    }
+  }
+
+
+  function processChatMessage(message) {
+    if (message.comment && message.comment.length === activeWord.length) {
+      if (message.comment.toLowerCase() === activeWord) {
+        processWinner(message);
+      } else {
+        processLetters(message.comment.toLowerCase());
+      }
+    }
+  }
+
+  watchChatById(myId, (msg) => {
+    if (msg.comment && msg.comment.length > 0) {
+      processChatMessage(msg);
+    }
+  })
 
 </script>
 

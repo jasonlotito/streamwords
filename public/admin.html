@@ -6,6 +6,10 @@
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>StreamWords Admin</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"
+          integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script>
+  <script src="./js/vendor/nfapiwrapper.js"></script>
   <style>
       * {
           font-family: sans-serif;
@@ -147,18 +151,18 @@
 
     </form>
   </section>
-  <section class="manage">
+  <section id="adminArea" class="manage">
     <form action="setWord" class="formMessage">
       <fieldset>
         <legend>Set Word</legend>
         <span>
-      <label for="setWord-setWord">Set Word</label>
-      <input type="text" name="message" id="setWord-setWord">
-      <p>Recommended to keep the number of letters fewer than 8.</p>
-    </span>
+                  <label for="setWord-setWord">Set Word</label>
+                  <input type="text" name="message" id="setWord-setWord">
+                  <p>Recommended to keep the number of letters fewer than 8.</p>
+                </span>
         <span>
-      <button type="submit">Set Word</button>
-    </span>
+                  <button type="submit">Set Word</button>
+                </span>
       </fieldset>
     </form>
 
@@ -166,7 +170,9 @@
       <fieldset class="buttons">
         <legend>Manage</legend>
         <button type="submit" name="message" value="clear">Clear Board</button>
+        <button type="submit" name="message" value="login">Login</button>
       </fieldset>
+      <span id="manageResult"></span>
     </form>
     <a href="" id="__refresh"></a>
 
@@ -175,26 +181,14 @@
   </section>
 
   <section class="leaders">
-    <h2>Leaders</h2>
+    <h2>Last 10 Winners</h2>
     <ul id="winnerList">
 
     </ul>
   </section>
   <section class="words">
-    <h2>Words</h2>
+    <h2>Word History</h2>
     <ul id="wordList">
-      <li>Lorem</li>
-      <li>ipsum</li>
-      <li>dolor</li>
-      <li>sit</li>
-      <li>amet</li>
-      <li>consectetur</li>
-      <li>Lorem</li>
-      <li>ipsum</li>
-      <li>dolor</li>
-      <li>sit</li>
-      <li>amet</li>
-      <li>consectetur</li>
     </ul>
   </section>
 </div>
@@ -202,176 +196,6 @@
 
 <footer></footer>
 <script src="/socket.io/socket.io.js"></script>
-<script>
-  const messageValue = document.getElementById('messageValue')
-  const messageType = document.getElementById('messageType')
-  const btnSendMessage = document.getElementById('btnSendMessage');
-  const winnerList = document.getElementById('winnerList');
-  const wordList = document.getElementById('wordList');
-  const inputWord = document.getElementById('setWord-setWord');
-  // const wordHistory = document.getElementById('wordHistory');
-  const params = new URLSearchParams(location.search);
-
-  const KEYS = {
-    currentWord: 'yourdle.currentWord',
-    wordHistory: 'yourdle.wordHistory',
-    winners: 'yourdle.winners'
-  }
-
-  const db = (() => {
-    let watchList = {};
-    let winners = Array(10);
-    const db = {
-      addWord: (word) => {
-        // db.wordHistory.add(db.currentWord.get());
-        db.currentWord.set(word);
-      },
-      getWord: () => db.currentWord.get(),
-      hasWord: () => !!db.getWord(),
-      getHistory: () => db.wordHistory.get(),
-      currentWord: {
-        get: () => localStorage.getItem(KEYS.currentWord),
-        set: (word) => localStorage.setItem(KEYS.currentWord, word),
-      },
-      getWinners: () => {
-        if(!localStorage.getItem(KEYS.winners)) {
-          localStorage.setItem(KEYS.winners, JSON.stringify(winners));
-        } else {
-          winners = JSON.parse(localStorage.getItem(KEYS.winners));
-        }
-
-        return winners;
-      },
-      addWinner: (name, word) => {
-        winners.push({name, word});
-
-        if(winners.length>10) {
-          winners.shift();
-        }
-
-        localStorage.setItem(KEYS.winners, JSON.stringify(winners))
-      },
-      wordHistory: (() => {
-        let wordList = [];
-
-        if (!localStorage.getItem(KEYS.wordHistory)) {
-          localStorage.setItem(KEYS.wordHistory, JSON.stringify(wordList));
-        } else {
-          wordList = JSON.parse(localStorage.getItem(KEYS.wordHistory));
-        }
-
-        return {
-          get: () => {
-            return wordList;
-          },
-          save: () => {
-            localStorage.setItem(KEYS.wordHistory, JSON.stringify(wordList))
-          },
-          add: (word) => {
-            wordList.push(word);
-            db.wordHistory.save();
-          },
-        }
-      })(),
-      watch: (() => {
-        return (event, cb) => {
-          if (!watchList[event]) {
-            watchList[event] = new Set();
-          }
-
-          watchList[event].add(cb);
-        };
-      })()
-    }
-
-    return db;
-  })();
-
-  // enable debug
-  if (location.search.toLowerCase().includes('debug=true')) {
-    document.getElementById('debugArea').setAttribute('style', 'display: block')
-  }
-
-  var socket = io();
-
-  socket.on('reload', function () {
-    console.log('reloading admin');
-    document.getElementById('__refresh').setAttribute('href', document.location);
-    document.getElementById('__refresh').click();
-  });
-
-  socket.on('connect', () => {
-    socket.emit('join', params.get('name'))
-  });
-
-  socket.on('winner', ({user, word}) => {
-    db.addWinner(user, word);
-    updateWinnerList();
-  });
-
-  function updateWinnerList() {
-    let winners = db.getWinners();
-    winnerList.innerHTML = '';
-    winners.forEach(({name, word}) => {
-      let li = document.createElement('li');
-      li.innerText = `${name} (${word})`
-      winnerList.appendChild(li);
-    })
-  }
-
-  btnSendMessage.addEventListener('click', () => {
-    console.log(`emitting message ${messageType.value} and ${messageValue.value}`);
-    socket.to(params.get('name')).emit(messageType.value, messageValue.value);
-  })
-
-  // If we have a word set, populate the word input
-  if (db.hasWord()) {
-    inputWord.value = db.getWord();
-  }
-
-  // Easy Form Message
-  const formMessage = document.getElementsByClassName('formMessage')
-  Array.from(formMessage).forEach(e => {
-    e.addEventListener('submit', event => {
-      let message = { type: null, value: null };
-
-      Array.from(event.target.elements).forEach(el => {
-        if (el.name === 'message' && el.value.trim().length > 0) {
-          message.value = el.value.trim();
-          message.type = event.target.action.substring(event.target.action.lastIndexOf('/') + 1);
-        }
-      });
-
-      switch (message.type) {
-        case 'setWord':
-          db.addWord(message.value);
-          break;
-      }
-
-      console.log(`type: ${message.type}; value: ${message.value}`)
-      socket.emit(message.type, message.value);
-      event.preventDefault();
-    })
-  });
-
-  // function addWord(word) {
-  //   let li = document.createElement('li')
-  //   li.innerText = `${word}`;
-  //
-  //   let remove = document.createElement('button')
-  //   remove.classList.add('deleteHistory')
-  //   remove.innerText = '⌫'
-  //
-  //   li.appendChild(remove);
-  //   return li;
-  // }
-  //
-  // //// Word History
-  // db.getHistory().forEach(word => {
-  //   wordHistory.appendChild(addWord(word));
-  // })
-
-
-</script>
+<script type="module" src="js/admin.js"></script>
 </body>
 </html>

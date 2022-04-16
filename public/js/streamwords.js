@@ -53,6 +53,7 @@ swEvents.onManageClear(() => setWord(''));
 swEvents.onSetWord(setWord)
 
 function setWord(w) {
+    console.log(w);
     activeWord = w.toLowerCase();
     keyboard.resetLetters();
 

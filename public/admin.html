@@ -152,7 +152,7 @@
     </form>
   </section>
   <section id="adminArea" class="manage">
-    <form action="setWord" class="formMessage">
+<!--    <form action="setWord" class="formMessage">-->
       <fieldset>
         <legend>Set Word</legend>
         <span>
@@ -161,10 +161,10 @@
                   <p>Recommended to keep the number of letters fewer than 8.</p>
                 </span>
         <span>
-                  <button type="submit">Set Word</button>
+                  <button type="submit" id="setWordButton">Set Word</button>
                 </span>
       </fieldset>
-    </form>
+<!--    </form>-->
 
     <form action="manage" class="formMessage">
       <fieldset class="buttons">
@@ -196,6 +196,8 @@
 
 <footer></footer>
 <script src="/socket.io/socket.io.js"></script>
-<script type="module" src="js/admin.js"></script>
+<script type="module" src="js/admin.js">
+  setWord($('#setWord-setWord'), $('#setWordButton'))
+</script>
 </body>
 </html>

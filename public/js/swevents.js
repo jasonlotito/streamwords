@@ -29,8 +29,10 @@ SWEvents.prototype.onReload = function(cb) {
  * @param {(word : string, isNewWord : boolean) => null} cb
  */
 SWEvents.prototype.onSetWord = function(cb) {
-    socket.on(EVENTS.SET_WORD, (obj) => {
-        cb(obj.word, obj.isNewWord);
+    socket.on(EVENTS.SET_WORD, (sobj) => {
+        console.log(sobj);
+        // const obj = JSON.parse(sobj);
+        cb(sobj.word, sobj.isNewWord);
     });
 }
 

@@ -2,14 +2,15 @@
 import {Keyboard} from './keyboard.js';
 import {Word} from './word.js';
 import {SWEvents} from "./swevents.js";
+import {Dev} from "./logger.js"
+import {MessageParser} from "./ynmessages.js";
+
 
 let myId = 54729316;
 let socket = io();
 let activeWord = '';
-const elWord = document.getElementById('word');
 const $word = $('#word');
 const $letters = $('#letters');
-const $btnConnect = $('connect');
 const inputName = document.getElementById('name');
 const params = new URLSearchParams(location.search);
 // We need a way to customize this
@@ -18,9 +19,10 @@ const alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m
 const keyboard = new Keyboard($letters, alphabet);
 const word = new Word($word)
 const swEvents = new SWEvents(socket);
-
+Dev.Log("Hello");
 function sendFakeChat(name, comment) {
-    console.log(`${name} said ${comment}`)
+    Dev.Log(`${name} said ${comment}`)
+
     handleMessage({name, comment})
 }
 
@@ -40,7 +42,7 @@ if (DEBUG) {
     document.getElementById('debugArea').classList.add('debug')
 
     swEvents.onReload(() => {
-        console.log('reloading...');
+        Dev.Log('reloading...');
         $('#__refresh').click();
         return false;
     })
@@ -52,8 +54,8 @@ swEvents.onConnect(() => socket.emit('join', params.get('name') ?? 'global'))
 swEvents.onManageClear(() => setWord(''));
 swEvents.onSetWord(setWord)
 
-function setWord(w) {
-    console.log(w);
+function  setWord(w) {
+    Dev.Log(w);
     activeWord = w.toLowerCase();
     keyboard.resetLetters();
 
@@ -66,8 +68,9 @@ function setWord(w) {
 
 function processWinner(msg) {
     processLetters(msg.comment);
+
     socket.emit('winner', JSON.stringify({name:msg.name, word:activeWord}));
-    console.log(`winner: ${msg.name} with ${msg.comment}`);
+    Dev.Log(`winner: ${msg.name} with ${msg.comment}`);
 }
 
 function processLetters(guess) {
@@ -83,7 +86,7 @@ function handleMessage(message) {
         }
     }
 }
-
+const messageParser = new MessageParser();
 watchChatById(myId, (msg) => {
     if (msg.comment && msg.comment.length > 0) {
         handleMessage(msg);

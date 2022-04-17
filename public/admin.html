@@ -10,6 +10,10 @@
   <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"
           integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script>
   <script src="./js/vendor/nfapiwrapper.js"></script>
+  <script src="https://js.pusher.com/3.0/pusher.min.js"></script>
+
+  <script src="webSocket.js"></script>
+
   <style>
       * {
           font-family: sans-serif;
@@ -151,29 +155,27 @@
 
     </form>
   </section>
-  <section id="adminArea" class="manage">
-<!--    <form action="setWord" class="formMessage">-->
+  <section class="manage">
+    <form action="setWord" id="frmSetWord">
       <fieldset>
         <legend>Set Word</legend>
         <span>
-                  <label for="setWord-setWord">Set Word</label>
-                  <input type="text" name="message" id="setWord-setWord">
+                  <label for="frmSetWordWord">Set Word</label>
+                  <input type="text" name="word" id="frmSetWordWord">
                   <p>Recommended to keep the number of letters fewer than 8.</p>
                 </span>
         <span>
                   <button type="submit" id="setWordButton">Set Word</button>
                 </span>
       </fieldset>
-<!--    </form>-->
+    </form>
 
-    <form action="manage" class="formMessage">
       <fieldset class="buttons">
         <legend>Manage</legend>
-        <button type="submit" name="message" value="clear">Clear Board</button>
-        <button type="submit" name="message" value="login">Login</button>
+        <button type="submit" name="message" value="clear" id="btnClear">Clear Board</button>
+        <button type="submit" name="message" value="login" id="btnLogin">Login</button>
       </fieldset>
       <span id="manageResult"></span>
-    </form>
     <a href="" id="__refresh"></a>
 
     <!--  <h2>History</h2>-->
@@ -196,8 +198,15 @@
 
 <footer></footer>
 <script src="/socket.io/socket.io.js"></script>
-<script type="module" src="js/admin.js">
-  setWord($('#setWord-setWord'), $('#setWordButton'))
+<script type="module">
+  import {setWord, setClearBoardButton, setLoginButton} from './js/admin.js';
+  setWord($('#frmSetWord'));
+  setClearBoardButton($('#btnClear'));
+  setClearBoardButton($('#btnLogin'));
+
+  watchChatById('48832442', (...args) => {
+      console.log(args);
+  })
 </script>
 </body>
 </html>

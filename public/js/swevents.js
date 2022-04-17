@@ -3,6 +3,8 @@ const EVENTS = Object.freeze({
     RELOAD: 'reload',
     SET_WORD: 'setWord',
     MANAGE: 'manage',
+    WINNER: 'winner',
+    CLEAR: 'clear'
 })
 
 let socket;
@@ -14,6 +16,10 @@ let socket;
  */
 export function SWEvents(sock) {
     socket = sock;
+}
+
+SWEvents.prototype.onWinner = function(cb) {
+    socket.on(EVENTS.WINNER, cb);
 }
 
 SWEvents.prototype.onConnect = function(cb) {
@@ -31,21 +37,25 @@ SWEvents.prototype.onReload = function(cb) {
 SWEvents.prototype.onSetWord = function(cb) {
     socket.on(EVENTS.SET_WORD, (sobj) => {
         console.log(sobj);
-        // const obj = JSON.parse(sobj);
-        cb(sobj.word, sobj.isNewWord);
+        const obj = JSON.parse(sobj);
+        cb(obj.word, obj.isNewWord);
     });
 }
 
 SWEvents.prototype.onManageClear = function (cb) {
-    socket.on(EVENTS.MANAGE, (w) => {
-        if(w.toLowerCase() === 'clear') {
-            cb();
-        }
-    });
+    socket.on(EVENTS.CLEAR, cb);
 }
 
-SWEvents.prototype.sendNewWord = function(word, isNewWord = true) {
-    socket.emit(EVENTS.SET_WORD, {word, isNewWord});
+SWEvents.prototype.clientEmitNewWord = function(word, isNewWord = true) {
+    emit(EVENTS.SET_WORD, {word, isNewWord})
+}
+
+SWEvents.prototype.clientEmitClear = function() {
+    socket.emit(EVENTS.CLEAR, true);
+}
+
+SWEvents.prototype.serverEmitNewWord = function(word, isNewWord = true) {
+    socket.emit('setWord', JSON.stringify({word, isNewWord}));
 }
 
 function emit(event, obj) {

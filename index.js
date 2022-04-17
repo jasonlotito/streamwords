@@ -1,9 +1,15 @@
-const express = require('express');
+import express from 'express'
+import http from 'http';
+import { Server } from 'socket.io';
+import {fileURLToPath} from 'url'
+import {dirname} from 'path'
+import {SWEvents} from "./public/js/swevents.js";
+
 const app = express();
-const http = require('http');
 const httpServer = http.createServer(app);
-const { Server } = require("socket.io");
 const io = new Server(httpServer);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 let reload = true;
 const { log, info, error, debug } = console;
@@ -31,6 +37,7 @@ let hotReloading = function (socket) {
 const wordList = new Map();
 
 io.on('connection', (socket) => {
+  const swEvents = new SWEvents(socket)
   log('connecting', socket.id);
   hotReloading(socket);
   let room = '';
@@ -44,7 +51,7 @@ io.on('connection', (socket) => {
 
     if (wordList.has(room)) {
       console.log('found');
-      socket.emit('setWord', wordList.get(room));
+      swEvents.serverEmitNewWord(wordList.get(room));
     }
   });
 
@@ -53,12 +60,15 @@ io.on('connection', (socket) => {
     console.log(msg);
   });
 
-  socket.on('setWord', (msg) => {
-    haveWinner = false;
-    socket.to(room).emit('setWord', msg);
-    wordList.set(room, msg);
-    console.log(`setWord ${room}: ${msg}`);
+  socket.on('clear', () => {
+    socket.to(room).emit('clear', true);
+  })
+
+  swEvents.onSetWord((word, isNewWord) => {
+    swEvents.serverEmitNewWord(word, isNewWord);
   });
+
+
 
   socket.on('winner', msg => {
     if(!haveWinner) {
@@ -75,10 +85,10 @@ io.on('connection', (socket) => {
   });
 
   socket.on('close', () => {
-    log('closing connection for ', socket)
-    delete(room)
-    delete(winnerList);
-    delete(haveWinner);
+    log('closing connection for ', socket);
+    // delete(room);
+    // delete(winnerList);
+    // delete(haveWinner);
   });
 
   socket.on('manage', (msg) => {

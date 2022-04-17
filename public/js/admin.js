@@ -1,8 +1,7 @@
 
 import {SWEvents} from "./swevents.js";
 import {DB} from "./db.js";
-
-
+import {Dev} from "./logger.js";
 
 const nfapi = NowFinityApi();
 var socket = io();
@@ -12,9 +11,10 @@ const messageType = document.getElementById('messageType')
 const btnSendMessage = document.getElementById('btnSendMessage');
 const winnerList = document.getElementById('winnerList');
 const wordList = document.getElementById('wordList');
-const inputWord = document.getElementById('setWord-setWord');
+const frmSetWordWord = $('#frmSetWordWord');
 const manageResult = $('#manageResult');
 const adminArea = $('#adminArea');
+const frmSetWord = $('#frmSetWord');
 // const wordHistory = document.getElementById('wordHistory');
 const params = new URLSearchParams(location.search);
 
@@ -29,16 +29,34 @@ if (location.search.toLowerCase().includes('debug=true')) {
     const DEBUG = false;
 }
 
-export function setWord($input, $btn) {
-    console.log('setWord click handler')
-    $btn.click(() => {
-        alert('clicked');
-        console.log('setWord');
+export function setWord($frmSetWord) {
+    Dev.Log('setWord click handler')
+    $frmSetWord.submit((e) => {
+        e.preventDefault();
+        swEvents.clientEmitNewWord(frmSetWordWord.val())
+        db.addWord(frmSetWordWord.val())
     })
 }
 
+export function setClearBoardButton($btn) {
+    $btn.click(() => swEvents.clientEmitClear());
+}
+
+export function setLoginButton($btn) {
+    $btn.click((e) => {
+        e.preventDefault();
+
+        nfapi.requestAuth().then(channelId => {
+            db.setChannelId(channelId);
+            manageResult.text(`Successfully logged in ${channelId}`)
+        }).catch(() => {
+            manageResult.text('Failed to login.')
+        })
+    });
+}
+
 swEvents.onReload(() => {
-    console.log('reloading admin');
+    Dev.Log('reloading admin');
     document.getElementById('__refresh').setAttribute('href', document.location);
     document.getElementById('__refresh').click();
 })
@@ -47,18 +65,18 @@ swEvents.onConnect(() => {
     socket.emit('join', params.get('name'))
 
     if(db.hasWord()) {
-        swEvents.sendNewWord(db.getWord())
+        swEvents.clientEmitNewWord(db.getWord())
     }
 })
 
-socket.on('winner', msg => {
+swEvents.onWinner(msg => {
+    Dev.Log(msg);
+    Dev.Log(JSON.parse(msg))
     const {name, word} = JSON.parse(msg);
     db.addWinner(name, word);
     updateWinnerList();
     addPointsA()
-});
-
-
+})
 
 function addPointsA() {
     nfapi.put('rest/transaction', {
@@ -88,13 +106,15 @@ function updateWinnerList() {
 updateWinnerList();
 
 btnSendMessage.addEventListener('click', () => {
-    console.log(`emitting message ${messageType.value} and ${messageValue.value}`);
+    Dev.Log(`emitting message ${messageType.value} and ${messageValue.value}`);
     socket.to(params.get('name')).emit(messageType.value, messageValue.value);
 })
 
+
+
 // If we have a word set, populate the word input
 if (db.hasWord()) {
-    inputWord.value = db.getWord();
+    frmSetWordWord.val(db.getWord())
 }
 
 // Easy Form Message
@@ -116,7 +136,6 @@ Array.from(formMessage).forEach(e => {
                 db.addWord(message.value);
                 emit = true
                 break;
-
         }
 
         switch (message.value) {
@@ -130,7 +149,7 @@ Array.from(formMessage).forEach(e => {
                 break;
         }
 
-        console.log(`type: ${message.type}; value: ${message.value}`)
+        Dev.Log(`type: ${message.type}; value: ${message.value}`)
         emit && socket.emit(message.type, message.value);
         event.preventDefault();
     })

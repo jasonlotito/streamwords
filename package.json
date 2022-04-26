@@ -5,8 +5,8 @@
   "type": "module",
   "main": "./src/index.js",
   "scripts": {
-    "dev": "nodemon index.js -e 'js html'",
-    "devwin": "nodemon.cmd index.js -e 'js html'"
+    "dev": "nodemon server.js -e 'js html'",
+    "devwin": "nodemon.cmd server.js -e 'js html'"
   },
   "keywords": [],
   "author": "",

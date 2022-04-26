@@ -120,6 +120,13 @@
       footer {
           grid-area: footer;
       }
+
+      @media (prefers-color-scheme: dark) {
+          body {
+              background-color: #3c3f41;
+              color: #e9e9ea;
+          }
+      }
   </style>
 </head>
 <body>
@@ -178,8 +185,6 @@
       <span id="manageResult"></span>
     <a href="" id="__refresh"></a>
 
-    <!--  <h2>History</h2>-->
-    <!--  <ul id="wordHistory"></ul>-->
   </section>
 
   <section class="leaders">

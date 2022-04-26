@@ -1,7 +1,7 @@
 export function Word ($word, socket) {
     this.el = $word;
     this.word = '';
-
+    this.visible = true;
 }
 
 function loopLetters(word, cb) {
@@ -12,12 +12,19 @@ function loopLetters(word, cb) {
     }
 }
 
+Word.prototype.isVisible = function (visible) {
+    this.visible = visible;
+}
+
 Word.prototype.show = function (word) {
     this.el.html('')
     this.word = word;
-    loopLetters(word, (chr) => {
-        this.el.append(`<span>${chr}</span>`)
-    })
+    if(this.visible) {
+        loopLetters(word, (chr) => {
+            this.el.append(`<span>${chr}</span>`)
+        })
+    }
+
 
     return word.length > 0;
 }

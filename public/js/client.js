@@ -1,9 +1,10 @@
 
 import {Keyboard} from './keyboard.js';
 import {Word} from './word.js';
-import {SWEvents} from "./swevents.js";
+import {SWClient} from "./swlib.js";
 import {Dev} from "./logger.js"
 import {MessageParser} from "./ynmessages.js";
+import {reloadPage} from "./reloader.js";
 
 
 let myId = 54729316;
@@ -17,8 +18,20 @@ const params = new URLSearchParams(location.search);
 const alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
 
 const keyboard = new Keyboard($letters, alphabet);
-const word = new Word($word)
-const swEvents = new SWEvents(socket);
+const word = new Word($word);
+
+if(params.has('show')) {
+    switch (params.get('show')) {
+        case 'keyboard':
+            word.isVisible(false);
+            break;
+        case 'word':
+            keyboard.isVisible(false);
+            break;
+    }
+}
+
+const swEvents = new SWClient(socket);
 Dev.Log("Hello");
 function sendFakeChat(name, comment) {
     Dev.Log(`${name} said ${comment}`)
@@ -42,9 +55,7 @@ if (DEBUG) {
     document.getElementById('debugArea').classList.add('debug')
 
     swEvents.onReload(() => {
-        Dev.Log('reloading...');
-        $('#__refresh').click();
-        return false;
+        reloadPage(true)
     })
 
     $('body').append(`<a href="${location.href}&ts=${Date.now()}" id="__refresh">refresh</a>`)
@@ -54,7 +65,7 @@ swEvents.onConnect(() => socket.emit('join', params.get('name') ?? 'global'))
 swEvents.onManageClear(() => setWord(''));
 swEvents.onSetWord(setWord)
 
-function  setWord(w) {
+function setWord(w) {
     Dev.Log(w);
     activeWord = w.toLowerCase();
     keyboard.resetLetters();

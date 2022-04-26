@@ -2,21 +2,30 @@
 export function Keyboard(el, alphabet) {
     this.el = el;
     this.alphabet = alphabet;
+    this.visible = true;
 }
 
 Keyboard.prototype.resetLetters = function() {
-    this.el.html('')
-    this.alphabet.forEach(letter => {
-        this.el.append(`<span>${letter}</span>`)
-    });
+    if (this.visible) {
+        this.el.html('')
+        this.alphabet.forEach(letter => {
+            this.el.append(`<span>${letter}</span>`)
+        });
+    }
 }
 
 Keyboard.prototype.hide = function() {
     this.el.addClass('hide');
 }
 
+Keyboard.prototype.isVisible = function(visible) {
+    this.visible = visible;
+}
+
 Keyboard.prototype.show = function() {
-    this.el.removeClass('hide');
+    if (this.visible) {
+        this.el.removeClass('hide');
+    }
 }
 
 Keyboard.prototype.markLetterFound = function (findType, letter) {

@@ -3,7 +3,7 @@ import http from 'http';
 import { Server } from 'socket.io';
 import {fileURLToPath} from 'url'
 import {dirname} from 'path'
-import {SWEvents} from "./public/js/swevents.js";
+import {SWServer} from "./public/js/swlib.js";
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -37,23 +37,24 @@ let hotReloading = function (socket) {
 const wordList = new Map();
 
 io.on('connection', (socket) => {
-  const swEvents = new SWEvents(socket)
+  const swServer = new SWServer(socket)
   log('connecting', socket.id);
   hotReloading(socket);
   let room = '';
   let winnerList = new Array(10);
   let haveWinner = false;
 
-  socket.on('join', (msg) => {
-    socket.join(msg);
+  swServer.onJoin((msg) => {
     room = msg;
     console.log(`joining ${msg}`)
 
     if (wordList.has(room)) {
-      console.log('found');
-      swEvents.serverEmitNewWord(wordList.get(room));
+      console.log(`Found ${room} word: ${wordList.get(room)}`);
+      setTimeout(() => {
+        swServer.serverEmitNewWord(wordList.get(room))
+      }, 1000);
     }
-  });
+  })
 
   socket.on('message', (msg) => {
     socket.to(room).emit('message', msg);
@@ -62,13 +63,12 @@ io.on('connection', (socket) => {
 
   socket.on('clear', () => {
     socket.to(room).emit('clear', true);
-  })
-
-  swEvents.onSetWord((word, isNewWord) => {
-    swEvents.serverEmitNewWord(word, isNewWord);
   });
 
-
+  swServer.onSetWord((word, isNewWord) => {
+    wordList.set(room, word);
+    swServer.serverEmitNewWord(word, isNewWord);
+  });
 
   socket.on('winner', msg => {
     if(!haveWinner) {
@@ -86,9 +86,9 @@ io.on('connection', (socket) => {
 
   socket.on('close', () => {
     log('closing connection for ', socket);
-    // delete(room);
-    // delete(winnerList);
-    // delete(haveWinner);
+    room = null;
+    winnerList = null;
+    haveWinner = null;
   });
 
   socket.on('manage', (msg) => {

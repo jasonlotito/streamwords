@@ -1,7 +1,8 @@
 
-import {SWEvents} from "./swevents.js";
+import {SWClient} from "./swlib.js";
 import {DB} from "./db.js";
 import {Dev} from "./logger.js";
+import {reloadPage} from "./reloader.js";
 
 const nfapi = NowFinityApi();
 var socket = io();
@@ -18,7 +19,7 @@ const frmSetWord = $('#frmSetWord');
 // const wordHistory = document.getElementById('wordHistory');
 const params = new URLSearchParams(location.search);
 
-const swEvents = new SWEvents(socket);
+const swEvents = new SWClient(socket);
 const db = DB;
 
 // enable debug
@@ -39,7 +40,7 @@ export function setWord($frmSetWord) {
 }
 
 export function setClearBoardButton($btn) {
-    $btn.click(() => swEvents.clientEmitClear());
+    $btn.click(() => swEvents.emitClear());
 }
 
 export function setLoginButton($btn) {
@@ -57,17 +58,18 @@ export function setLoginButton($btn) {
 
 swEvents.onReload(() => {
     Dev.Log('reloading admin');
-    document.getElementById('__refresh').setAttribute('href', document.location);
-    document.getElementById('__refresh').click();
+    // document.getElementById('__refresh').setAttribute('href', document.location);
+    // document.getElementById('__refresh').click();
+    reloadPage(true);
 })
 
 swEvents.onConnect(() => {
     socket.emit('join', params.get('name'))
 
     if(db.hasWord()) {
-        swEvents.clientEmitNewWord(db.getWord())
+        swEvents.clientEmitNewWord(db.getWord(), false)
     }
-})
+});
 
 swEvents.onWinner(msg => {
     Dev.Log(msg);
@@ -75,10 +77,10 @@ swEvents.onWinner(msg => {
     const {name, word} = JSON.parse(msg);
     db.addWinner(name, word);
     updateWinnerList();
-    addPointsA()
-})
+    addPointsForWinner()
+});
 
-function addPointsA() {
+function addPointsForWinner() {
     nfapi.put('rest/transaction', {
         userId: 54729316,
         username: "JasonML",

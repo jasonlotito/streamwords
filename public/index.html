@@ -108,11 +108,57 @@
       footer.debug {
           display: block;
       }
+
+
+      #winner span {
+          font-size: 40px;
+          font-weight: bold;
+          display: block;
+          text-align: center;
+      }
+
+      #winner {
+          position: absolute;
+          display: none;
+          border: 10px solid orangered;
+          background-color: rgba(255, 150, 0, 1);
+          top: 30%;
+          left: 50%;
+          padding: 10px;
+          transform: scale(1) translate(-50%, -50%);
+
+          transform-origin: center center;
+      }
+
+      #winner.win {
+          display: block;
+          animation: winner 1s linear;
+      }
+
+      @keyframes winner {
+          0% {
+              top: 0%;
+              left: 35%;
+              transform: scale(0) translate(-50%, -50%) rotate(720deg);
+          }
+          100% {
+              top: 30%;
+              left: 50%;
+              transform: scale(1)  translate(-50%, -50%);
+          }
+      }
+
   </style>
 </head>
 <body>
 <div id="word" value=""></div>
 <div id="letters" class="hide"></div>
+<div id="winner">
+  <span>!!!!</span>
+  <span id="winnerName">winnerName</span>
+  <span id="winnerWord">word</span>
+  <span>!!!!</span>
+</div>
 
 <footer id="debugArea">
   <input type="text" id="name" placeholder="user" style="width: 5em;" value="jasonml">

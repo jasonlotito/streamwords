@@ -3,8 +3,16 @@ import http from 'http';
 import { Server } from 'socket.io';
 import {fileURLToPath} from 'url'
 import {dirname} from 'path'
-import {SWServer} from "./public/js/swlib.js";
+import {SWServer, EVENTS} from "./public/js/swlib.js";
+import wordlist from "wordlist-english";
+import Filter from 'bad-words';
 
+var americanWords = wordlist['english/american'];
+var australianWords = wordlist['english/australian'];
+var britishWords = wordlist['english/british'];
+var canadianWords = wordlist['english/canadian'];
+var englishWords = wordlist['english'];
+const filter = new Filter();
 const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer);
@@ -43,6 +51,8 @@ io.on('connection', (socket) => {
   let room = '';
   let winnerList = new Array(10);
   let haveWinner = false;
+  let mustBeRealWord = true;
+  let pointsPerWin = 100;
 
   swServer.onJoin((msg) => {
     room = msg;
@@ -56,25 +66,52 @@ io.on('connection', (socket) => {
     }
   })
 
-  socket.on('message', (msg) => {
-    socket.to(room).emit('message', msg);
-    console.log(msg);
+  swServer.onMessage(msg => {
+    swServer.emitMessage(msg);
   });
 
-  socket.on('clear', () => {
-    socket.to(room).emit('clear', true);
-  });
+  swServer.onClear(msg => {
+    swServer.emit(EVENTS.CLEAR, msg);
+  })
+
+  englishWords.push('younow')
+  const irw = r => r !== -1;
+  const is_english_word = w => irw(englishWords.indexOf(w));
+  const is_american_word = w => irw(americanWords.indexOf(w));
+  const is_canadian_word = w => irw(canadianWords.indexOf(w));
+  const is_british_word = w => irw(britishWords.indexOf(w));
+  const is_real_word = w => (is_english_word(w) || is_canadian_word(w) || is_american_word(w) || is_british_word(w));
+  const is_word = w => is_real_word(w.toLowerCase());
 
   swServer.onSetWord((word, isNewWord) => {
+    if (mustBeRealWord && !is_word(word)) {
+      console.log(`Bad word ${word}`)
+      let msg = filter.isProfane(word) ? `'${word}' is considered profane and is not allowed.` : `'${word}' is not found in our dictionary.`;
+      swServer.emitError(msg);
+      return;
+    }
     wordList.set(room, word);
     swServer.serverEmitNewWord(word, isNewWord);
   });
 
-  socket.on('winner', msg => {
+  swServer.onRandomWord( (dict) => {
+    const list = dict.toLowerCase();
+    let word = '';
+    do {
+      word = wordlist[list][Math.floor(Math.random()*wordlist[list].length)];
+    } while( word.length < 4 || word.length > 6 && !filter.isProfane(word));
+
+    wordList.set(room, word);
+    swServer.serverEmitNewWord(word, true);
+    socket.emit(EVENTS.RANDOM_WORD, word);
+  });
+
+
+  swServer.on(EVENTS.WINNER, msg => {
     if(!haveWinner) {
       haveWinner = true;
+      swServer.emit(EVENTS.WINNER, msg);
 
-      socket.to(room).emit('winner', msg);
       let { name, word } = JSON.parse(msg);
       winnerList.push({ name, word })
 

@@ -12,7 +12,7 @@ const messageType = document.getElementById('messageType')
 const btnSendMessage = document.getElementById('btnSendMessage');
 const winnerList = document.getElementById('winnerList');
 const wordList = document.getElementById('wordList');
-const frmSetWordWord = $('#frmSetWordWord');
+const $frmSetWordWord = $('#frmSetWordWord');
 const manageResult = $('#manageResult');
 const adminArea = $('#adminArea');
 const frmSetWord = $('#frmSetWord');
@@ -30,12 +30,42 @@ if (location.search.toLowerCase().includes('debug=true')) {
     const DEBUG = false;
 }
 
+export function setErrorContainer($errorContainer) {
+    $errorContainer.hide();
+    swEvents.onError(msg => {
+        $errorContainer.show();
+        $errorContainer.text(msg);
+        $frmSetWordWord.val('');
+        db.addWord('')
+        $frmSetWordWord.focus();
+        setTimeout(() => $errorContainer.hide(200), 10000)
+    });
+}
+
 export function setWord($frmSetWord) {
     Dev.Log('setWord click handler')
     $frmSetWord.submit((e) => {
         e.preventDefault();
-        swEvents.clientEmitNewWord(frmSetWordWord.val())
-        db.addWord(frmSetWordWord.val())
+        swEvents.clientEmitNewWord($frmSetWordWord.val())
+        db.addWord($frmSetWordWord.val())
+    })
+}
+
+export function setRandomWord($form, $wordList, $hide) {
+    Dev.Log('setRandomWord')
+    $form.submit(e => {
+        e.preventDefault();
+        swEvents.clientEmitRandomWord($wordList.val())
+    })
+
+    $hide.change(function() {
+        if (this.checked) {
+            console.log('hide');
+            $frmSetWordWord.attr('type', 'password');
+        } else {
+            console.log('show');
+            $frmSetWordWord.attr('type', 'text');
+        }
     })
 }
 
@@ -44,6 +74,10 @@ export function setClearBoardButton($btn) {
 }
 
 export function setLoginButton($btn) {
+    if (nfapi.isLoggedIn()) {
+        console.log('is logged in')
+        $btn.text('You are logged into NowFinity');
+    }
     $btn.click((e) => {
         e.preventDefault();
 
@@ -61,6 +95,12 @@ swEvents.onReload(() => {
     // document.getElementById('__refresh').setAttribute('href', document.location);
     // document.getElementById('__refresh').click();
     reloadPage(true);
+});
+
+swEvents.onRandomWordSet(w => {
+    swEvents.clientEmitNewWord(w)
+    db.addWord(w);
+    $frmSetWordWord.val(w);
 })
 
 swEvents.onConnect(() => {
@@ -116,7 +156,7 @@ btnSendMessage.addEventListener('click', () => {
 
 // If we have a word set, populate the word input
 if (db.hasWord()) {
-    frmSetWordWord.val(db.getWord())
+    $frmSetWordWord.val(db.getWord())
 }
 
 // Easy Form Message

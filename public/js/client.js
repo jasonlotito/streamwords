@@ -11,6 +11,9 @@ let myId = 54729316;
 let socket = io();
 let activeWord = '';
 const $word = $('#word');
+const $winner = $('#winner');
+const $winnerName = $('#winnerName');
+const $winnerWord = $('#winnerWord');
 const $letters = $('#letters');
 const inputName = document.getElementById('name');
 const params = new URLSearchParams(location.search);
@@ -19,6 +22,7 @@ const alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m
 
 const keyboard = new Keyboard($letters, alphabet);
 const word = new Word($word);
+let winnerFound = false;
 
 if(params.has('show')) {
     switch (params.get('show')) {
@@ -57,8 +61,6 @@ if (DEBUG) {
     swEvents.onReload(() => {
         reloadPage(true)
     })
-
-    $('body').append(`<a href="${location.href}&ts=${Date.now()}" id="__refresh">refresh</a>`)
 }
 
 swEvents.onConnect(() => socket.emit('join', params.get('name') ?? 'global'))
@@ -70,18 +72,33 @@ function setWord(w) {
     activeWord = w.toLowerCase();
     keyboard.resetLetters();
 
+
     if(word.show(w)){
+        winnerFound = false;
         keyboard.show();
+        $winner.removeClass('win');
     } else {
         keyboard.hide();
     }
 }
 
 function processWinner(msg) {
+    if (winnerFound) {
+        return;
+    }
     processLetters(msg.comment);
-
+    winnerFound = true;
     socket.emit('winner', JSON.stringify({name:msg.name, word:activeWord}));
     Dev.Log(`winner: ${msg.name} with ${msg.comment}`);
+    $winner.addClass('win');
+    $winnerName.text(msg.name);
+    $winnerWord.text(activeWord);
+    setWord('');
+    setTimeout(() => {
+        $winner.removeClass('win');
+        $winnerName.text('');
+        $winnerWord.text('');
+    }, 10000);
 }
 
 function processLetters(guess) {

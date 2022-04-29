@@ -1,12 +1,15 @@
-const EVENTS = Object.freeze({
+export const EVENTS = Object.freeze({
     CONNECT: 'connect',
     RELOAD: 'reload',
     SET_WORD: 'setWord',
     MANAGE: 'manage',
     WINNER: 'winner',
     CLEAR: 'clear',
-    JOIN: 'join'
-})
+    JOIN: 'join',
+    MESSAGE: 'message',
+    ERROR: 'error',
+    RANDOM_WORD: 'randomWord'
+});
 
 let socket;
 
@@ -51,6 +54,34 @@ export class SWServer {
         this.setRoom(room);
         this.sock.join(room);
     }
+
+    onMessage(cb) {
+        this.sock.on(EVENTS.MESSAGE, (msg) => cb);
+    }
+
+    emitMessage(msg) {
+        this.sock.to(this.room).emit(EVENTS.MESSAGE, msg);
+    }
+
+    onClear(cb) {
+        this.sock.on(EVENTS.CLEAR, cb);
+    }
+
+    on(event, cb) {
+        this.sock.on(event, cb);
+    }
+
+    emit(event, msg) {
+        this.sock.to(this.room).emit(event, msg);
+    }
+
+    emitError(msg) {
+        this.sock.emit(EVENTS.ERROR, msg);
+    }
+
+    onRandomWord(cb) {
+        this.sock.on(EVENTS.RANDOM_WORD, w => cb(JSON.parse(w)));
+    }
 }
 
 export class SWClient {
@@ -59,6 +90,10 @@ export class SWClient {
     constructor(sock) {
         this.sock = sock;
         socket = this.sock;
+    }
+
+    onRandomWordSet(cb) {
+        this.sock.on(EVENTS.RANDOM_WORD, cb);
     }
 
     onWinner(cb) {
@@ -73,6 +108,10 @@ export class SWClient {
         this.sock.on(EVENTS.RELOAD, cb);
     }
 
+    onError(cb) {
+        this.sock.on(EVENTS.ERROR, cb);
+    }
+
     onSetWord(cb) {
         this.sock.on(EVENTS.SET_WORD, (setWordObj) => {
             console.log(setWordObj);
@@ -85,8 +124,13 @@ export class SWClient {
         socket.on(EVENTS.CLEAR, cb);
     }
 
+
     clientEmitNewWord(word, isNewWord = true) {
         emit(EVENTS.SET_WORD, {word, isNewWord})
+    }
+
+    clientEmitRandomWord(wordList) {
+        emit(EVENTS.RANDOM_WORD, wordList);
     }
 
     emitClear() {

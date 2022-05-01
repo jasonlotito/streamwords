@@ -8,7 +8,9 @@ export const EVENTS = Object.freeze({
     JOIN: 'join',
     MESSAGE: 'message',
     ERROR: 'error',
-    RANDOM_WORD: 'randomWord'
+    RANDOM_WORD: 'randomWord',
+    POINTS: 'points',
+    CHECK_WORD: 'checkWord'
 });
 
 let socket;
@@ -32,7 +34,7 @@ export class SWServer {
 
     serverEmitNewWord(word, isNewWord = true) {
         console.log(`new word: ${this.room} word: ${word} isNewWord: ${isNewWord}`)
-        this.sock.to(this.room).emit('setWord', JSON.stringify({word, isNewWord}));
+        this.sock.emit('setWord', JSON.stringify({word, isNewWord}));
     }
 
     onJoin(cb) {
@@ -40,6 +42,10 @@ export class SWServer {
            this.joinRoom(room);
            cb(room);
         });
+    }
+
+    onPoints(cb) {
+        this.sock.on(EVENTS.POINTS, cb);
     }
 
     onSetWord(cb) {
@@ -81,6 +87,14 @@ export class SWServer {
 
     onRandomWord(cb) {
         this.sock.on(EVENTS.RANDOM_WORD, w => cb(JSON.parse(w)));
+    }
+
+    onCheckWord(cb) {
+        this.sock.on(EVENTS.CHECK_WORD, cb);
+    }
+
+    emitCheckWord(word) {
+        this.sock.emit(EVENTS.CHECK_WORD, word);
     }
 }
 
@@ -133,8 +147,20 @@ export class SWClient {
         emit(EVENTS.RANDOM_WORD, wordList);
     }
 
+    clientEmitSetPointForWin(points) {
+        emit(EVENTS.POINTS, points);
+    }
+
     emitClear() {
         socket.emit(EVENTS.CLEAR, true);
+    }
+
+    emitCheckWord(word) {
+        socket.emit(EVENTS.CHECK_WORD, word);
+    }
+
+    onCheckWord(cb) {
+        this.sock.on(EVENTS.CHECK_WORD, cb);
     }
 }
 

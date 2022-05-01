@@ -5,6 +5,8 @@ import {SWClient} from "./swlib.js";
 import {Dev} from "./logger.js"
 import {MessageParser} from "./ynmessages.js";
 import {reloadPage} from "./reloader.js";
+// import Filter from 'bad-words';
+
 
 
 let myId = 54729316;
@@ -88,7 +90,7 @@ function processWinner(msg) {
     }
     processLetters(msg.comment);
     winnerFound = true;
-    socket.emit('winner', JSON.stringify({name:msg.name, word:activeWord}));
+    socket.emit('winner', JSON.stringify({name:msg.name, word:activeWord, userId: msg.userId}));
     Dev.Log(`winner: ${msg.name} with ${msg.comment}`);
     $winner.addClass('win');
     $winnerName.text(msg.name);
@@ -110,10 +112,17 @@ function handleMessage(message) {
         if (message.comment.toLowerCase() === activeWord) {
             processWinner(message);
         } else {
-            processLetters(message.comment.toLowerCase());
+            swEvents.emitCheckWord(message.comment.toLowerCase());
         }
     }
 }
+
+swEvents.onCheckWord(word => {
+    if(word) {
+        processLetters(word);
+    }
+})
+
 const messageParser = new MessageParser();
 watchChatById(myId, (msg) => {
     if (msg.comment && msg.comment.length > 0) {

@@ -28,6 +28,12 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html')
 });
 
+app.get('/favicon.ico', (req, res) => {
+  res.writeHead(200, {'Content-Tyupe': 'image/x-icon'});
+  res.end();
+  return;
+});
+
 app.get('/admin', (req, res) => {
   res.sendFile(__dirname + '/public/admin.html')
 });
@@ -50,9 +56,7 @@ io.on('connection', (socket) => {
   hotReloading(socket);
   let room = '';
   let winnerList = new Array(10);
-  let haveWinner = false;
   let mustBeRealWord = true;
-  let pointsPerWin = 100;
 
   swServer.onJoin((msg) => {
     room = msg;
@@ -72,7 +76,7 @@ io.on('connection', (socket) => {
 
   swServer.onClear(msg => {
     swServer.emit(EVENTS.CLEAR, msg);
-  })
+  });
 
   englishWords.push('younow')
   const irw = r => r !== -1;
@@ -94,13 +98,25 @@ io.on('connection', (socket) => {
     swServer.serverEmitNewWord(word, isNewWord);
   });
 
+  swServer.onCheckWord(word => {
+    let returnWord = is_word(word) ? word : null;
+    swServer.emitCheckWord(returnWord);
+  });
+
+  function getRandomWord(dict, complexity = '10') {
+    let word = '';
+    let listName = `${dict}/${complexity}`
+    do {
+      word = wordlist[listName][Math.floor(Math.random()*wordlist[listName].length)];
+    } while( word.length < 4 || word.length > 6 && !filter.isProfane(word));
+
+    return word;
+  }
+
   swServer.onRandomWord( (dict) => {
     const list = dict.toLowerCase();
     let word = '';
-    do {
-      word = wordlist[list][Math.floor(Math.random()*wordlist[list].length)];
-    } while( word.length < 4 || word.length > 6 && !filter.isProfane(word));
-
+    word = getRandomWord(list, 10);
     wordList.set(room, word);
     swServer.serverEmitNewWord(word, true);
     socket.emit(EVENTS.RANDOM_WORD, word);
@@ -108,11 +124,19 @@ io.on('connection', (socket) => {
 
 
   swServer.on(EVENTS.WINNER, msg => {
-    if(!haveWinner) {
-      haveWinner = true;
-      swServer.emit(EVENTS.WINNER, msg);
 
-      let { name, word } = JSON.parse(msg);
+    let { name, word, userId } = JSON.parse(msg);
+
+    if (!name || !word || !userId) {
+      return;
+    }
+
+    if(wordList.has(room)) {
+      console.log(`winner ${name} won with ${word} should only win once`);
+      wordList.delete(room);
+
+      swServer.emit(EVENTS.WINNER, msg);
+      // socket.emit(EVENTS.WINNER, msg);
       winnerList.push({ name, word })
 
       if (winnerList.length > 10) {
@@ -125,7 +149,6 @@ io.on('connection', (socket) => {
     log('closing connection for ', socket);
     room = null;
     winnerList = null;
-    haveWinner = null;
   });
 
   socket.on('manage', (msg) => {

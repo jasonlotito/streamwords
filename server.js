@@ -24,9 +24,10 @@ const { log, info, error, debug } = console;
 
 app.use(express.static(`${__dirname}/public`));
 
-app.get('/', (req, res) => {
+app.get('/obs', (req, res) => {
   res.sendFile(__dirname + '/public/index.html')
 });
+
 
 app.get('/favicon.ico', (req, res) => {
   res.writeHead(200, {'Content-Tyupe': 'image/x-icon'});
@@ -119,6 +120,7 @@ io.on('connection', (socket) => {
     word = getRandomWord(list, 10);
     wordList.set(room, word);
     swServer.serverEmitNewWord(word, true);
+    
     socket.emit(EVENTS.RANDOM_WORD, word);
   });
 

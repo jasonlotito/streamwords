@@ -9,11 +9,10 @@ export function reloadPage(reloadCss = true) {
             let clonedLink = link.cloneNode(true);
             let newHref = link.href.replace(/(&|\?)__reload=\d+/, "$1__reload=" + messageId);
             if (newHref !== link.href) {
-                alert('no equal path')
+                console.log('reloader.js 1')
                 clonedLink.href = newHref;
-
             } else {
-                alert('this path')
+                console.log('reloader.js 2')
                 let indexOfQuest = newHref.indexOf('?');
                 if (indexOfQuest >= 0) {
                     // to support ?foo#hash

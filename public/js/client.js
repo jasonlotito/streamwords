@@ -1,15 +1,11 @@
-
 import {Keyboard} from './keyboard.js';
 import {Word} from './word.js';
 import {SWClient} from "./swlib.js";
 import {Dev} from "./logger.js"
 import {MessageParser} from "./ynmessages.js";
 import {reloadPage} from "./reloader.js";
-// import Filter from 'bad-words';
 
-
-
-let myId = 54729316;
+//let myId = 54729316;
 let socket = io();
 let activeWord = '';
 const $word = $('#word');
@@ -21,7 +17,7 @@ const inputName = document.getElementById('name');
 const params = new URLSearchParams(location.search);
 // We need a way to customize this
 const alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
-
+const myId = params.get('id');
 const keyboard = new Keyboard($letters, alphabet);
 const word = new Word($word);
 let winnerFound = false;
@@ -65,7 +61,7 @@ if (DEBUG) {
     })
 }
 
-swEvents.onConnect(() => socket.emit('join', params.get('name') ?? 'global'))
+swEvents.onConnect(() => socket.emit('join', myId))
 swEvents.onManageClear(() => setWord(''));
 swEvents.onSetWord(setWord)
 

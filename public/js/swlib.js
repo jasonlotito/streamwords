@@ -34,7 +34,7 @@ export class SWServer {
 
     serverEmitNewWord(word, isNewWord = true) {
         console.log(`new word: ${this.room} word: ${word} isNewWord: ${isNewWord}`)
-        this.sock.emit('setWord', JSON.stringify({word, isNewWord}));
+        this.sock.to(this.room).emit('setWord', JSON.stringify({word, isNewWord}));
     }
 
     onJoin(cb) {
@@ -66,7 +66,7 @@ export class SWServer {
     }
 
     emitMessage(msg) {
-        this.sock.to(this.room).emit(EVENTS.MESSAGE, msg);
+        this.emit(EVENTS.MESSAGE, msg);
     }
 
     onClear(cb) {
@@ -82,6 +82,7 @@ export class SWServer {
     }
 
     emitError(msg) {
+        // We only want to return to the admin screen
         this.sock.emit(EVENTS.ERROR, msg);
     }
 
@@ -94,16 +95,21 @@ export class SWServer {
     }
 
     emitCheckWord(word) {
-        this.sock.emit(EVENTS.CHECK_WORD, word);
+        this.emit(EVENTS.CHECK_WORD, word);
     }
 }
 
 export class SWClient {
     sock = null;
 
-    constructor(sock) {
+    constructor(sock, nfapi) {
         this.sock = sock;
+        this.nfapi = nfapi;
         socket = this.sock;
+    }
+
+    joinRoom(room) {
+        this.sock.emit(EVENTS.JOIN, room)
     }
 
     onRandomWordSet(cb) {

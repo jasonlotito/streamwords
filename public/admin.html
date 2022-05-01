@@ -27,7 +27,6 @@
       <div id="errorContainer">
         This is an error message.
       </div>
-
       <form action="setWord" id="frmSetWord">
         <fieldset>
           <legend>Set Word</legend>
@@ -42,7 +41,6 @@
           </span>
         </fieldset>
       </form>
-
       <form action="setRandomWord" id="frmRandomWord">
         <fieldset>
           <legend>Set Random Word</legend>
@@ -65,13 +63,13 @@
           </span>
         </fieldset>
       </form>
-
-      <fieldset class="buttons">
+      <fieldset id="btnsManage" class="buttons">
         <legend>Manage</legend>
+        <button type="button" id="copyObsUrl">Copy OBS Browser URL</button>
         <button type="submit" name="message" value="clear" id="btnClear">Clear Board</button>
-        <button type="submit" name="message" value="login" id="btnLogin">Login</button>
+        <button type="submit" name="message" value="login" id="btnLogin">Log Into StreamNow/NowFinity</button>
+        <div id="messageHandler"></div>
       </fieldset>
-
       <form id="frmPointsForWinning">
         <fieldset>
           <legend>Game Config</legend>
@@ -102,7 +100,6 @@
     </section>
   </div>
 
-
   <footer></footer>
   <script src="/socket.io/socket.io.js"></script>
   <script type="module">
@@ -112,7 +109,8 @@
       setLoginButton,
       setErrorContainer,
       setRandomWord,
-      setPointsForm
+      setPointsForm,
+      setCopyObsUrlButton
     } from './js/admin.js';
 
     setWord($('#frmSetWord'));
@@ -121,7 +119,14 @@
     setErrorContainer($('#errorContainer'));
     setClearBoardButton($('#btnClear'));
     setClearBoardButton($('#btnLogin'));
-    setLoginButton($('#btnLogin'))
+    setCopyObsUrlButton($('#copyObsUrl'));
+    setLoginButton($('#btnLogin'), $('#messageHandler'), [
+      $('#copyObsUrl'),
+      $('#frmSetWord'),
+      $('#frmRandomWord'),
+      $('#btnClear'),
+      $('#frmPointsForWinning'),
+    ]);
 
     watchChatById('48832442', (...args) => {
       console.log(args);

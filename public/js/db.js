@@ -3,7 +3,8 @@ const KEYS = {
   wordHistory: 'com.jasonml.yourdle.wordHistory',
   winners: 'com.jasonml.yourdle.winners',
   channelId: 'com.jasonml.channelId',
-  pointsPerWin: 'com.jasonml.yourdle.pointsPerWin'
+  pointsPerWin: 'com.jasonml.yourdle.pointsPerWin',
+  room: 'com.jasonml.yourdle.room',
 }
 
 const db = (() => {
@@ -15,6 +16,8 @@ const db = (() => {
     getPointsPerWin: () => localStorage.getItem(KEYS.pointsPerWin) ?? 100,
     setChannelId: id => localStorage.setItem(KEYS.channelId, id),
     getChannelId: () => localStorage.getItem(KEYS.channelId),
+    setRoom: () => localStorage.setItem(KEYS.room, Date.now() + localStorage.getItem(KEYS.channelId)),
+    getRoom: () => localStorage.getItem(KEYS.room),
     addWord: (word) => {
       // db.wordHistory.add(db.currentWord.get());
       db.currentWord.set(word);

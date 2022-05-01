@@ -10,7 +10,7 @@ const winnerList = document.getElementById('winnerList');
 const $frmSetWordWord = $('#frmSetWordWord');
 const manageResult = $('#manageResult');
 const params = new URLSearchParams(location.search);
-const swEvents = new SWClient(socket);
+const swEvents = new SWClient(socket, nfapi);
 const db = DB;
 
 let $errorContainer = null;
@@ -24,7 +24,6 @@ if (location.search.toLowerCase().includes('debug=true')) {
 }
 
 export function setErrorContainer($eError) {
-//    $eError.hide();
     $errorContainer = $eError;
     swEvents.onError(msg => {
         $frmSetWordWord.val('');
@@ -85,21 +84,43 @@ export function setClearBoardButton($btn) {
     $btn.click(() => swEvents.emitClear());
 }
 
-export function setLoginButton($btn) {
+export function setCopyObsUrlButton($btn) {
+    $btn.click(() => {
+        navigator.clipboard.writeText(`${document.location.protocol}//${document.location.host}/obs?id=${db.getRoom()}`)
+    })
+}
+
+export function setLoginButton($btn, $messageHandler, requireLogin = []) {
     if (nfapi.isLoggedIn()) {
-        console.log('is logged in')
-        $btn.text('You are logged into NowFinity');
+        $btn.text('Disconnect from StreamNow/NowFinity');
     }
     $btn.click((e) => {
         e.preventDefault();
 
-        nfapi.requestAuth().then(channelId => {
-            db.setChannelId(channelId);
-            manageResult.text(`Successfully logged in ${channelId}`)
-        }).catch(() => {
-            manageResult.text('Failed to login.')
-        })
+        if(nfapi.isLoggedIn()) {
+            nfapi.logout();
+            $btn.text("Log into StreamNow/NowFinity.")
+            requireLogin.forEach(e => e.hide());
+        } else {
+            nfapi.requestAuth().then(channelId => {
+                db.setChannelId(channelId);
+                db.setRoom();
+                joinRoom();
+                manageResult.text(`Successfully logged in ${channelId}`)
+                requireLogin.forEach(e => e.show());
+            }).catch(() => {
+                let msg = 'Failed to connect with StreamNow/NowFinity. Please make sure you are logged into StreamNow.pro and connected to the NowFinity Points system. You will also need to grant access to your NowFinity Account.';
+                manageResult.text('Failed to login.')
+                showError('Failed to connect with StreamNow/NowFinity.')
+                $messageHandler.html(`Please log into <a target="_blank" href="https://streamnow.pro">StreamNow.pro</a>. <p>${msg}`);
+            })
+        }
+
     });
+
+    if (!nfapi.isLoggedIn()) {
+        requireLogin.forEach(e => e.hide());
+    }
 }
 
 swEvents.onReload(() => {
@@ -108,18 +129,22 @@ swEvents.onReload(() => {
 });
 
 swEvents.onRandomWordSet(w => {
-    swEvents.clientEmitNewWord(w)
     db.addWord(w);
     $frmSetWordWord.val(w);
 })
 
 swEvents.onConnect(() => {
-    socket.emit('join', params.get('name'))
+    if (nfapi.isLoggedIn()) {
+        joinRoom();
+    }
+});
 
+function joinRoom() {
+    swEvents.joinRoom(db.getRoom());
     if(db.hasWord()) {
         swEvents.clientEmitNewWord(db.getWord(), false)
     }
-});
+}
 
 swEvents.onWinner(msg => {
     Dev.Log(msg);

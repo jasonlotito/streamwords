@@ -24,7 +24,7 @@ if (location.search.toLowerCase().includes('debug=true')) {
 }
 
 export function setErrorContainer($eError) {
-    $eError.hide();
+//    $eError.hide();
     $errorContainer = $eError;
     swEvents.onError(msg => {
         $frmSetWordWord.val('');

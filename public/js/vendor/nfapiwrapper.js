@@ -3,12 +3,12 @@
  * jQuery is required!
  */
 
-function NowFinityApi(customHost) {
+function NowFinityApi(customHost, $iframe = null) {
     let host = new URL(customHost || "https://nowfinity.zerody.one/");
     let channelId = localStorage.getItem('nf_channelId');
     let channelSignature = localStorage.getItem('nf_channelSignature');
 
-    function isLoggedIn() {
+    function isLoggedIn() { 
         return channelId !== null && channelSignature !== null;
     }
 
@@ -18,6 +18,9 @@ function NowFinityApi(customHost) {
 
     function requestAuth() {
         return new Promise((resolve, reject) => {
+            if ($iframe) {
+                console.log()
+            }
             let popup = window.open(host.origin + "/tp/authorize?origin=" + encodeURIComponent(window.location.origin), "", "width=600,height=400,status=yes,scrollbars=yes,resizable=yes");
 
             let checker = setInterval(() => {

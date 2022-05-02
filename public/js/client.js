@@ -18,6 +18,8 @@ const params = new URLSearchParams(location.search);
 // We need a way to customize this
 const alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
 const myId = params.get('id');
+const roomId = params.get('roomId');
+const channelId = params.get('channelId');
 const keyboard = new Keyboard($letters, alphabet);
 const word = new Word($word);
 let winnerFound = false;
@@ -61,7 +63,7 @@ if (DEBUG) {
     })
 }
 
-swEvents.onConnect(() => socket.emit('join', myId))
+swEvents.onConnect(() => socket.emit('join', roomId))
 swEvents.onManageClear(() => setWord(''));
 swEvents.onSetWord(setWord)
 
@@ -69,7 +71,6 @@ function setWord(w) {
     Dev.Log(w);
     activeWord = w.toLowerCase();
     keyboard.resetLetters();
-
 
     if(word.show(w)){
         winnerFound = false;
@@ -120,7 +121,7 @@ swEvents.onCheckWord(word => {
 })
 
 const messageParser = new MessageParser();
-watchChatById(myId, (msg) => {
+watchChatById(channelId, (msg) => {
     if (msg.comment && msg.comment.length > 0) {
         handleMessage(msg);
     }

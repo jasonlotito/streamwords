@@ -12,6 +12,7 @@ var australianWords = wordlist['english/australian'];
 var britishWords = wordlist['english/british'];
 var canadianWords = wordlist['english/canadian'];
 var englishWords = wordlist['english'];
+
 const filter = new Filter();
 const app = express();
 const httpServer = http.createServer(app);
@@ -62,12 +63,12 @@ io.on('connection', (socket) => {
   swServer.onJoin((msg) => {
     room = msg;
     console.log(`joining ${msg}`)
-
+    swServer.joinRoom(room);
     if (wordList.has(room)) {
       console.log(`Found ${room} word: ${wordList.get(room)}`);
       setTimeout(() => {
         swServer.serverEmitNewWord(wordList.get(room))
-      }, 1000);
+     }, 1000);
     }
   })
 
@@ -80,12 +81,17 @@ io.on('connection', (socket) => {
   });
 
   englishWords.push('younow')
+  australianWords.push('crikey');
+
   const irw = r => r !== -1;
-  const is_english_word = w => irw(englishWords.indexOf(w));
-  const is_american_word = w => irw(americanWords.indexOf(w));
-  const is_canadian_word = w => irw(canadianWords.indexOf(w));
-  const is_british_word = w => irw(britishWords.indexOf(w));
-  const is_real_word = w => (is_english_word(w) || is_canadian_word(w) || is_american_word(w) || is_british_word(w));
+  const wordLists = [
+    w => irw(englishWords.indexOf(w)),
+    w => irw(americanWords.indexOf(w)),
+    w => irw(canadianWords.indexOf(w)),
+    w => irw(britishWords.indexOf(w)),
+    w => irw(australianWords.indexOf(w)),
+  ];
+  const is_real_word = w => wordLists.find( is_a_word => is_a_word(w));
   const is_word = w => is_real_word(w.toLowerCase());
 
   swServer.onSetWord((word, isNewWord) => {

@@ -86,7 +86,11 @@ export function setClearBoardButton($btn) {
 
 export function setCopyObsUrlButton($btn) {
     $btn.click(() => {
-        navigator.clipboard.writeText(`${document.location.protocol}//${document.location.host}/obs?id=${db.getRoom()}`)
+        const {protocol, host} = document.location;
+        const roomId = db.getRoom();
+        const channelId = db.getChannelId();
+        const url = `${protocol}//${location.host}/obs?roomId=${roomId}&channelId=${channelId}`;
+        navigator.clipboard.writeText(url)
     })
 }
 

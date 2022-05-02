@@ -22,7 +22,6 @@ let socket;
  */
 export class SWServer {
     sock = null;
-
     constructor(sock) {
         this.sock = sock;
         socket = this.sock;
@@ -34,7 +33,7 @@ export class SWServer {
 
     serverEmitNewWord(word, isNewWord = true) {
         console.log(`new word: ${this.room} word: ${word} isNewWord: ${isNewWord}`)
-        this.sock.to(this.room).emit('setWord', JSON.stringify({word, isNewWord}));
+        this.emit(EVENTS.SET_WORD, JSON.stringify({word, isNewWord}));
     }
 
     onJoin(cb) {

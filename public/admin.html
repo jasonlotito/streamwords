@@ -1,137 +1,153 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>StreamWords Admin</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script
+      src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"
+      integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY="
+      crossorigin="anonymous"
+    ></script>
+    <script src="./js/vendor/nfapiwrapper.js"></script>
+    <script src="https://js.pusher.com/3.0/pusher.min.js"></script>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>StreamWords Admin</title>
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"
-    integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script>
-  <script src="./js/vendor/nfapiwrapper.js"></script>
-  <script src="https://js.pusher.com/3.0/pusher.min.js"></script>
+    <script src="webSocket.js"></script>
 
-  <script src="webSocket.js"></script>
+    <link rel="stylesheet" href="css/admin.css" />
+  </head>
 
-  <link rel="stylesheet" href="css/admin.css">
-</head>
-
-<body>
-  <header>
-    <h1>StreamWords Manager</h1>
-  </header>
-  <div class="main">
-    <section class="manage">
-
-      <div id="errorContainer">
-        This is an error message.
-      </div>
-      <form action="setWord" id="frmSetWord">
-        <fieldset>
-          <legend>Set Word</legend>
-          <span>
-            <label for="frmSetWordWord">Set Word</label>
-            <input type="text" name="word" id="frmSetWordWord" autocomplete="false">
-            <p>Recommended to keep the number of letters fewer than 8.</p>
-            <p>Please keep in mind that the word must be something that YouNow allows you to say in chat.</p>
-          </span>
-          <span>
-            <button type="submit" id="setWordButton">Set Word</button>
-          </span>
+  <body>
+    <header>
+      <h1>StreamWords Manager</h1>
+    </header>
+    <div class="main">
+      <section class="manage">
+        <div id="errorContainer">This is an error message.</div>
+        <form action="setWord" id="frmSetWord">
+          <fieldset>
+            <legend>Set Word</legend>
+            <span>
+              <label for="frmSetWordWord">Set Word</label>
+              <input
+                type="text"
+                name="word"
+                id="frmSetWordWord"
+                autocomplete="false"
+              />
+              <p>Recommended to keep the number of letters fewer than 8.</p>
+              <p>
+                Please keep in mind that the word must be something that YouNow
+                allows you to say in chat.
+              </p>
+            </span>
+            <span>
+              <button type="submit" id="setWordButton">Set Word</button>
+            </span>
+          </fieldset>
+        </form>
+        <form action="setRandomWord" id="frmRandomWord">
+          <fieldset>
+            <legend>Set Random Word</legend>
+            <span>
+              <label for="wordListDictionary">Word List</label>
+              <select id="wordListDictionary">
+                <option value="English">English</option>
+              </select>
+            </span>
+            <span>
+              <label for="hideWordFromStreamer">Hide Word From Me</label>
+              <input
+                type="checkbox"
+                name="hideWord"
+                id="hideWordFromStreamer"
+              />
+            </span>
+            <span>
+              <p>
+                Will pick a random word between 4-6 characters long. Makes for
+                the best games!
+              </p>
+            </span>
+            <span>
+              <button type="submit" id="setRandomWord">Set Random Word</button>
+            </span>
+          </fieldset>
+        </form>
+        <fieldset id="btnsManage" class="buttons">
+          <legend>Manage</legend>
+          <button type="button" id="copyObsUrl">Copy OBS Browser URL</button>
+          <button type="submit" name="message" value="clear" id="btnClear">
+            Clear Board
+          </button>
+          <button type="submit" name="message" value="login" id="btnLogin">
+            Log Into StreamNow/NowFinity
+          </button>
+          <div id="messageHandler"></div>
         </fieldset>
-      </form>
-      <form action="setRandomWord" id="frmRandomWord">
-        <fieldset>
-          <legend>Set Random Word</legend>
-          <span>
-            <label for="wordListDictionary">Word List</label>
-            <select id="wordListDictionary">
-              <option value="English">English</option>
-            </select>
-          </span>
-          <span>
-            <label for="hideWordFromStreamer">Hide Word From Me</label>
-            <input type="checkbox" name="hideWord" id="hideWordFromStreamer">
-          </span>
-          <span>
-            <p>Will pick a random word between 4-6 characters long. Makes
-              for the best games!</p>
-          </span>
-          <span>
-            <button type="submit" id="setRandomWord">Set Random Word</button>
-          </span>
-        </fieldset>
-      </form>
-      <fieldset id="btnsManage" class="buttons">
-        <legend>Manage</legend>
-        <button type="button" id="copyObsUrl">Copy OBS Browser URL</button>
-        <button type="submit" name="message" value="clear" id="btnClear">Clear Board</button>
-        <button type="submit" name="message" value="login" id="btnLogin">Log Into StreamNow/NowFinity</button>
-        <div id="messageHandler"></div>
-      </fieldset>
-      <form id="frmPointsForWinning">
-        <fieldset>
-          <legend>Game Config</legend>
-          <p>This will set the points in Streamnow.pro/NowFinity.</p>
-          <span>
-            <label for="pointsForWin">Points For Win</label>
-            <input type="number" id="pointsForWin" value="100">
-          </span>
-          <span>
-            <button type="submit">Set Points</button>
-          </span>
-        </fieldset>
-      </form>
+        <form id="frmPointsForWinning">
+          <fieldset>
+            <legend>Game Config</legend>
+            <p>This will set the points in Streamnow.pro/NowFinity.</p>
+            <span>
+              <label for="pointsForWin">Points For Win</label>
+              <input type="number" id="pointsForWin" value="100" />
+            </span>
+            <span>
+              <button type="submit">Set Points</button>
+            </span>
+          </fieldset>
+        </form>
+      </section>
 
-    </section>
+      <section class="leaders">
+        <span id="manageResult"></span>
+        <h2>Last 10 Winners</h2>
+        <ul id="winnerList"></ul>
+      </section>
+      <section class="words">
+        <h2>Word History</h2>
+        <ul id="wordList"></ul>
+      </section>
+    </div>
 
-    <section class="leaders">
-      <span id="manageResult"></span>
-      <h2>Last 10 Winners</h2>
-      <ul id="winnerList">
+    <footer></footer>
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module">
+      import {
+        setWord,
+        setClearBoardButton,
+        setLoginButton,
+        setErrorContainer,
+        setRandomWord,
+        setPointsForm,
+        setCopyObsUrlButton,
+      } from "./js/admin.js";
 
-      </ul>
-    </section>
-    <section class="words">
-      <h2>Word History</h2>
-      <ul id="wordList">
-      </ul>
-    </section>
-  </div>
+      setWord($("#frmSetWord"));
+      setPointsForm($("#frmPointsForWinning"), $("#pointsForWin"));
+      setRandomWord(
+        $("#frmRandomWord"),
+        $("#wordListDictionary"),
+        $("#hideWordFromStreamer")
+      );
+      setErrorContainer($("#errorContainer"));
+      setClearBoardButton($("#btnClear"));
+      setClearBoardButton($("#btnLogin"));
+      setCopyObsUrlButton($("#copyObsUrl"));
+      setLoginButton($("#btnLogin"), $("#messageHandler"), [
+        $("#copyObsUrl"),
+        $("#frmSetWord"),
+        $("#frmRandomWord"),
+        $("#btnClear"),
+        $("#frmPointsForWinning"),
+      ]);
 
-  <footer></footer>
-  <script src="/socket.io/socket.io.js"></script>
-  <script type="module">
-    import {
-      setWord,
-      setClearBoardButton,
-      setLoginButton,
-      setErrorContainer,
-      setRandomWord,
-      setPointsForm,
-      setCopyObsUrlButton
-    } from './js/admin.js';
-
-    setWord($('#frmSetWord'));
-    setPointsForm($('#frmPointsForWinning'), $('#pointsForWin'));
-    setRandomWord($('#frmRandomWord'), $('#wordListDictionary'), $('#hideWordFromStreamer'))
-    setErrorContainer($('#errorContainer'));
-    setClearBoardButton($('#btnClear'));
-    setClearBoardButton($('#btnLogin'));
-    setCopyObsUrlButton($('#copyObsUrl'));
-    setLoginButton($('#btnLogin'), $('#messageHandler'), [
-      $('#copyObsUrl'),
-      $('#frmSetWord'),
-      $('#frmRandomWord'),
-      $('#btnClear'),
-      $('#frmPointsForWinning'),
-    ]);
-
-    watchChatById('48832442', (...args) => {
-      console.log(args);
-    })
-  </script>
-</body>
-
+      watchChatById("48832442", (...args) => {
+        console.log(args);
+      });
+    </script>
+  </body>
 </html>

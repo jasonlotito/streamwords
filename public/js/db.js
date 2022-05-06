@@ -1,22 +1,27 @@
 const KEYS = {
-  currentWord: 'com.jasonml.yourdle.currentWord',
-  wordHistory: 'com.jasonml.yourdle.wordHistory',
-  winners: 'com.jasonml.yourdle.winners',
-  channelId: 'com.jasonml.channelId',
-  pointsPerWin: 'com.jasonml.yourdle.pointsPerWin',
-  room: 'com.jasonml.yourdle.room',
-}
+  currentWord: "com.jasonml.yourdle.currentWord",
+  wordHistory: "com.jasonml.yourdle.wordHistory",
+  winners: "com.jasonml.yourdle.winners",
+  channelId: "com.jasonml.channelId",
+  pointsPerWin: "com.jasonml.yourdle.pointsPerWin",
+  room: "com.jasonml.yourdle.room",
+};
 
 const db = (() => {
   let watchList = {};
   let winners = [];
 
   const db = {
-    setPointsPerWin: points => localStorage.setItem(KEYS.pointsPerWin, points),
+    setPointsPerWin: (points) =>
+      localStorage.setItem(KEYS.pointsPerWin, points),
     getPointsPerWin: () => localStorage.getItem(KEYS.pointsPerWin) ?? 100,
-    setChannelId: id => localStorage.setItem(KEYS.channelId, id),
+    setChannelId: (id) => localStorage.setItem(KEYS.channelId, id),
     getChannelId: () => localStorage.getItem(KEYS.channelId),
-    setRoom: () => localStorage.setItem(KEYS.room, Date.now() + localStorage.getItem(KEYS.channelId)),
+    setRoom: () =>
+      localStorage.setItem(
+        KEYS.room,
+        Date.now() + localStorage.getItem(KEYS.channelId)
+      ),
     getRoom: () => localStorage.getItem(KEYS.room),
     addWord: (word) => {
       // db.wordHistory.add(db.currentWord.get());
@@ -39,13 +44,13 @@ const db = (() => {
       return winners;
     },
     addWinner: (name, word) => {
-      winners.unshift({name, word});
+      winners.unshift({ name, word });
 
       if (winners.length > 10) {
         winners.pop();
       }
 
-      localStorage.setItem(KEYS.winners, JSON.stringify(winners))
+      localStorage.setItem(KEYS.winners, JSON.stringify(winners));
     },
     wordHistory: (() => {
       let wordList = [];
@@ -61,13 +66,13 @@ const db = (() => {
           return wordList;
         },
         save: () => {
-          localStorage.setItem(KEYS.wordHistory, JSON.stringify(wordList))
+          localStorage.setItem(KEYS.wordHistory, JSON.stringify(wordList));
         },
         add: (word) => {
           wordList.push(word);
           db.wordHistory.save();
         },
-      }
+      };
     })(),
     watch: (() => {
       return (event, cb) => {
@@ -77,8 +82,8 @@ const db = (() => {
 
         watchList[event].add(cb);
       };
-    })()
-  }
+    })(),
+  };
 
   return db;
 })();

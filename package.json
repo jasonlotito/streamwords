@@ -2,9 +2,9 @@
   "name": "word-crimes",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
-  "main": "./src/index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "electron .",
     "dev": "nodemon server.js -e 'js html'",
     "devwin": "nodemon.cmd server.js -e 'js html'"
   },
@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "electron": "^18.2.0",
     "nodemon": "^2.0.15"
   },
   "dependencies": {

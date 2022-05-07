@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="js/vendor/jquery-3.6.0.min.js"></script>
+    <script src="js/vendor/nfapiwrapper.js"></script>
+  </head>
+  <body>
+    <button id="login">Login</button>
+    <script>
+      $btn = $("#login");
+      const nfapi = NowFinityApi();
+
+      $btn.click((e) => {
+        e.preventDefault();
+
+        if (nfapi.isLoggedIn()) {
+          nfapi.logout();
+          $btn.text("Log into StreamNow/NowFinity.");
+          requireLogin.forEach((e) => e.hide());
+        } else {
+          nfapi
+            .requestAuth()
+            .then((channelId) => {
+              // Send a message back to the server with
+              // * localStorage.getItem('nf_channelId');
+              // * localStorage.getItem('nf_channelSignature');
+              // That way, on our end, we can set this in the app
+              // We also need to tell the person they can close
+              // the web page
+
+              // All this stuff below needs to be done on the admin.html
+              // page as that is being run in the app
+              db.setChannelId(channelId);
+              db.setRoom();
+              joinRoom();
+              manageResult.text(`Successfully logged in ${channelId}`);
+              requireLogin.forEach((e) => e.show());
+            })
+            .catch(() => {
+              let msg =
+                "Failed to connect with StreamNow/NowFinity. Please make sure you are logged into StreamNow.pro and connected to the NowFinity Points system. You will also need to grant access to your NowFinity Account.";
+              manageResult.text("Failed to login.");
+              showError("Failed to connect with StreamNow/NowFinity.");
+              $messageHandler.html(
+                `Please log into <a target="_blank" href="https://streamnow.pro">StreamNow.pro</a>. <p>${msg}`
+              );
+            });
+        }
+      });
+    </script>
+  </body>
+</html>

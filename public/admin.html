@@ -5,12 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>StreamWords Admin</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script
-      src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js"
-      integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY="
-      crossorigin="anonymous"
-    ></script>
+    <script src="js/vendor/jquery-3.6.0.min.js"></script>
     <script src="./js/vendor/nfapiwrapper.js"></script>
     <script src="https://js.pusher.com/3.0/pusher.min.js"></script>
 
@@ -20,9 +15,6 @@
   </head>
 
   <body>
-    <header>
-      <h1>StreamWords Manager</h1>
-    </header>
     <div class="main">
       <section class="manage">
         <div id="errorContainer">This is an error message.</div>
@@ -114,7 +106,7 @@
     </div>
 
     <footer></footer>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/vendor/socket.io.min.js"></script>
     <script type="module">
       import {
         setWord,

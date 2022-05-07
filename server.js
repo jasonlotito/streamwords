@@ -1,17 +1,7 @@
-/*
-import express from 'express'
-import http from 'http';
-import { Server } from 'socket.io';
-import {fileURLToPath} from 'url'
-import {dirname} from 'path'
-import {SWServer, EVENTS} from "./public/js/swlib.js";
-import wordlist from "wordlist-english";
-import Filter from 'bad-words';
-*/
-
 const electron = require("electron");
 const BrowserWindow = electron.BrowserWindow;
 const electronApp = electron.app;
+const shell = electron.shell;
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -195,9 +185,14 @@ httpServer.listen(3000, () => {
       height: 600,
     });
     win.loadFile("./public/admin.html");
+
+    win.webContents.on("new-window", (e, url) => {
+      e.preventDefault();
+      shell.openExternal(url);
+    });
   };
-  console.log("listening on *:3000");
-  //  electronApp.whenRead().then(() => {
-  createWindow();
-  // });
+
+  electronApp.whenReady().then(() => {
+    createWindow();
+  });
 });

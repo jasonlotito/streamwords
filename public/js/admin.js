@@ -4,7 +4,7 @@ import { Dev } from "./logger.js";
 import { reloadPage } from "./reloader.js";
 
 const nfapi = NowFinityApi();
-var socket = io();
+var socket = io("http://localhost:3000");
 const winnerList = document.getElementById("winnerList");
 const $frmSetWordWord = $("#frmSetWordWord");
 const manageResult = $("#manageResult");
@@ -105,24 +105,10 @@ export function setLoginButton($btn, $messageHandler, requireLogin = []) {
       $btn.text("Log into StreamNow/NowFinity.");
       requireLogin.forEach((e) => e.hide());
     } else {
-      nfapi
-        .requestAuth()
-        .then((channelId) => {
-          db.setChannelId(channelId);
-          db.setRoom();
-          joinRoom();
-          manageResult.text(`Successfully logged in ${channelId}`);
-          requireLogin.forEach((e) => e.show());
-        })
-        .catch(() => {
-          let msg =
-            "Failed to connect with StreamNow/NowFinity. Please make sure you are logged into StreamNow.pro and connected to the NowFinity Points system. You will also need to grant access to your NowFinity Account.";
-          manageResult.text("Failed to login.");
-          showError("Failed to connect with StreamNow/NowFinity.");
-          $messageHandler.html(
-            `Please log into <a target="_blank" href="https://streamnow.pro">StreamNow.pro</a>. <p>${msg}`
-          );
-        });
+      let popup = window.open(
+        "http://localhost:3000/login.html",
+        "width=600,height=400,status=yes,scrollbars=yes,resizable=yes"
+      );
     }
   });
 

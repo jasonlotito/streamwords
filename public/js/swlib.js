@@ -11,6 +11,7 @@ const EVENTS = Object.freeze({
   RANDOM_WORD: "randomWord",
   POINTS: "points",
   CHECK_WORD: "checkWord",
+  NF_LOGIN: "nfLogin",
 });
 
 let socket;
@@ -45,6 +46,23 @@ class SWServer {
 
   onPoints(cb) {
     this.sock.on(EVENTS.POINTS, cb);
+  }
+
+  onNFLogin(cb) {
+    this.sock.on(EVENTS.NF_LOGIN, (msg) => {
+      const { nfChannelId, nfChannelSignature } = JSON.parse(msg);
+      cb(nfChannelId, nfChannelSignature);
+    });
+  }
+
+  emitNFLogin(nfChannelId, nfChannelSignature) {
+    this.sock.emit(
+      EVENTS.NF_LOGIN,
+      JSON.stringify({
+        nfChannelId,
+        nfChannelSignature,
+      })
+    );
   }
 
   onSetWord(cb) {

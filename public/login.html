@@ -7,12 +7,22 @@
     <title>Document</title>
     <script src="js/vendor/jquery-3.6.0.min.js"></script>
     <script src="js/vendor/nfapiwrapper.js"></script>
+    <script src="js/vendor/socket.io.min.js"></script>
   </head>
   <body>
     <button id="login">Login</button>
+    <div id="manageResult"></div>
+    <div id="messageHandler"></div>
     <script>
+      let socket = io();
       $btn = $("#login");
+      $manageResult = $("#manageResult");
+      $messageHandler = $("#messageHandler");
       const nfapi = NowFinityApi();
+
+      if (nfapi.isLoggedIn()) {
+        $btn.text("Log out");
+      }
 
       $btn.click((e) => {
         e.preventDefault();
@@ -25,6 +35,17 @@
           nfapi
             .requestAuth()
             .then((channelId) => {
+              const nfChannelId = localStorage.getItem("nf_channelId");
+              const nfChannelSignature = localStorage.getItem(
+                "nf_channelSignature"
+              );
+              socket.emit(
+                "nfLogin",
+                JSON.stringify({
+                  nfChannelId,
+                  nfChannelSignature,
+                })
+              );
               // Send a message back to the server with
               // * localStorage.getItem('nf_channelId');
               // * localStorage.getItem('nf_channelSignature');
@@ -34,17 +55,17 @@
 
               // All this stuff below needs to be done on the admin.html
               // page as that is being run in the app
-              db.setChannelId(channelId);
-              db.setRoom();
-              joinRoom();
-              manageResult.text(`Successfully logged in ${channelId}`);
-              requireLogin.forEach((e) => e.show());
+              //              db.setChannelId(channelId);
+              //             db.setRoom();
+              //            joinRoom();
+              $manageResult.text(`Successfully logged in ${channelId}`);
+              //requireLogin.forEach((e) => e.show());
             })
             .catch(() => {
               let msg =
                 "Failed to connect with StreamNow/NowFinity. Please make sure you are logged into StreamNow.pro and connected to the NowFinity Points system. You will also need to grant access to your NowFinity Account.";
-              manageResult.text("Failed to login.");
-              showError("Failed to connect with StreamNow/NowFinity.");
+              $manageResult.text("Failed to login.");
+              //showError("Failed to connect with StreamNow/NowFinity.");
               $messageHandler.html(
                 `Please log into <a target="_blank" href="https://streamnow.pro">StreamNow.pro</a>. <p>${msg}`
               );

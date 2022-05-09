@@ -21,8 +21,6 @@ const filter = new Filter();
 const app = express();
 const httpServer = http.createServer(app);
 const io = new Server(httpServer);
-//const __filename = fileURLToPath(import.meta.url);
-//const __dirname = dirname(__filename);
 
 let reload = true;
 const { log, info, error, debug } = console;
@@ -73,6 +71,10 @@ io.on("connection", (socket) => {
         swServer.serverEmitNewWord(wordList.get(room));
       }, 1000);
     }
+  });
+
+  swServer.onNFLogin((channelId, channelSignature) => {
+    swServer.emitNFLogin(channelId, channelSignature);
   });
 
   swServer.onMessage((msg) => {

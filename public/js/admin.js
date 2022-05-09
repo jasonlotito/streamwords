@@ -117,6 +117,11 @@ export function setLoginButton($btn, $messageHandler, requireLogin = []) {
   }
 }
 
+swEvents.onNFLogin((nfChannelId, nfSignatureId) => {
+  localStorage.setItem("nf_channelId", nfChannelId);
+  localStorage.setItem("nf_signatureId", nfSignatureId);
+});
+
 swEvents.onReload(() => {
   Dev.Log("reloading admin");
   reloadPage(true);

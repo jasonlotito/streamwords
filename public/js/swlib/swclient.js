@@ -11,6 +11,7 @@ const EVENTS = Object.freeze({
   RANDOM_WORD: "randomWord",
   POINTS: "points",
   CHECK_WORD: "checkWord",
+  NF_LOGIN: "nfLogin",
 });
 
 export class SWClient {
@@ -23,6 +24,13 @@ export class SWClient {
 
   joinRoom(room) {
     this.sock.emit(EVENTS.JOIN, room);
+  }
+
+  onNFLogin(cb) {
+    this.sock.on(EVENTS.NF_LOGIN, (msg) => {
+      const { nfChannelId, nfChannelSignature } = JSON.parse(msg);
+      cb(nfChannelId, nfChannelSignature);
+    });
   }
 
   onRandomWordSet(cb) {

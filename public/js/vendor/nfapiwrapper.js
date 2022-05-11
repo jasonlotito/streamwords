@@ -9,6 +9,8 @@ function NowFinityApi(customHost, $iframe = null) {
   let channelSignature = localStorage.getItem("nf_channelSignature");
 
   function isLoggedIn() {
+    let channelId = localStorage.getItem("nf_channelId");
+    let channelSignature = localStorage.getItem("nf_channelSignature");
     return channelId !== null && channelSignature !== null;
   }
 

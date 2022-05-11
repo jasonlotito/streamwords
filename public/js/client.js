@@ -137,6 +137,9 @@ function processLetters(guess) {
 }
 
 function handleMessage(message) {
+  // This handles Zero's plugin for naught words, naughty naughty!
+  let magicChar = String.fromCharCode(8203);
+  message.comment = message.comment.replaceAll(magicChar, "").trim();
   if (message.comment && message.comment.length === activeWord.length) {
     if (message.comment.toLowerCase() === activeWord) {
       processWinner(message);

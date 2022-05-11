@@ -23,8 +23,10 @@ let socket;
  */
 class SWServer {
   sock = null;
-  constructor(sock) {
+  io = null;
+  constructor(sock, io) {
     this.sock = sock;
+    this.io = io;
     socket = this.sock;
   }
 
@@ -56,7 +58,7 @@ class SWServer {
   }
 
   emitNFLogin(nfChannelId, nfChannelSignature) {
-    this.sock.emit(
+    this.io.emit(
       EVENTS.NF_LOGIN,
       JSON.stringify({
         nfChannelId,
@@ -108,7 +110,7 @@ class SWServer {
   }
 
   onCheckWord(cb) {
-    this.sock.on(EVENTS.CHECK_WORD, cb);
+    this.sock.on(EVENTS.CHECK_WORD, (w) => cb(JSON.parse(w)));
   }
 
   emitCheckWord(word) {

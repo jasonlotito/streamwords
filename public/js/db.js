@@ -5,6 +5,7 @@ const KEYS = {
   channelId: "com.jasonml.channelId",
   pointsPerWin: "com.jasonml.yourdle.pointsPerWin",
   room: "com.jasonml.yourdle.room",
+  hideWord: "com.jasonml.yourdle.hideWord",
 };
 
 const db = (() => {
@@ -12,6 +13,9 @@ const db = (() => {
   let winners = [];
 
   const db = {
+    setHideWord: (hide) =>
+      localStorage.setItem(KEYS.hideWord, JSON.stringify(!!hide)),
+    hideWord: () => JSON.parse(localStorage.getItem(KEYS.hideWord)) ?? false,
     setPointsPerWin: (points) =>
       localStorage.setItem(KEYS.pointsPerWin, points),
     getPointsPerWin: () => localStorage.getItem(KEYS.pointsPerWin) ?? 100,

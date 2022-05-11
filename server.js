@@ -2,6 +2,7 @@ const electron = require("electron");
 const BrowserWindow = electron.BrowserWindow;
 const electronApp = electron.app;
 const shell = electron.shell;
+const protocol = electron.protocol;
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -32,8 +33,6 @@ app.get("/obs", (req, res) => {
 });
 
 app.get("/favicon.ico", (req, res) => {
-  res.writeHead(200, { "Content-Tyupe": "image/x-icon" });
-  res.end();
   return;
 });
 
@@ -54,7 +53,7 @@ let hotReloading = function (socket) {
 const wordList = new Map();
 
 io.on("connection", (socket) => {
-  const swServer = new SWServer(socket);
+  const swServer = new SWServer(socket, io);
   log("connecting", socket.id);
   hotReloading(socket);
   let room = "";
@@ -74,6 +73,7 @@ io.on("connection", (socket) => {
   });
 
   swServer.onNFLogin((channelId, channelSignature) => {
+    console.log("NFLogin", channelId, channelSignature);
     swServer.emitNFLogin(channelId, channelSignature);
   });
 
@@ -196,5 +196,10 @@ httpServer.listen(3000, () => {
 
   electronApp.whenReady().then(() => {
     createWindow();
+
+    protocol.registerFileProtocol("streamwords", (req, cb) => {
+      const url = request.url.substr(14);
+      console.log(url);
+    });
   });
 });

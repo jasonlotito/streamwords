@@ -72,11 +72,17 @@ export function setRandomWord($form, $wordList, $hide) {
     if (this.checked) {
       console.log("hide");
       $frmSetWordWord.attr("type", "password");
+      db.setHideWord(true);
     } else {
       console.log("show");
       $frmSetWordWord.attr("type", "text");
+      db.setHideWord(false);
     }
   });
+
+  if (db.hideWord()) {
+    $hide.click();
+  }
 }
 
 export function setClearBoardButton($btn) {
@@ -88,7 +94,7 @@ export function setCopyObsUrlButton($btn) {
     const { protocol, host } = document.location;
     const roomId = db.getRoom();
     const channelId = db.getChannelId();
-    const url = `${protocol}//${location.host}/obs?roomId=${roomId}&channelId=${channelId}`;
+    const url = `http://localhost:3000/obs?roomId=${roomId}&channelId=${channelId}`;
     navigator.clipboard.writeText(url);
   });
 }
@@ -109,6 +115,13 @@ export function setLoginButton($btn, $messageHandler, requireLogin = []) {
         "http://localhost:3000/login.html",
         "width=600,height=400,status=yes,scrollbars=yes,resizable=yes"
       );
+
+      checkLogin = setInterval(() => {
+        if (nfapi.isLoggedIn()) {
+          requireLogin.forEach((e) => e.show());
+          clearTimeout(checkLogin);
+        }
+      }, 100);
     }
   });
 
@@ -117,9 +130,12 @@ export function setLoginButton($btn, $messageHandler, requireLogin = []) {
   }
 }
 
-swEvents.onNFLogin((nfChannelId, nfSignatureId) => {
+swEvents.onNFLogin((nfChannelId, nfChannelSignature) => {
   localStorage.setItem("nf_channelId", nfChannelId);
-  localStorage.setItem("nf_signatureId", nfSignatureId);
+  localStorage.setItem("nf_channelSignature", nfChannelSignature);
+  db.setChannelId(nfChannelId);
+  db.setRoom();
+  joinRoom();
 });
 
 swEvents.onReload(() => {

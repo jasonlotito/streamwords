@@ -4,8 +4,28 @@ import { SWClient } from "./swlib/swclient.js";
 import { Dev } from "./logger.js";
 import { MessageParser } from "./ynmessages.js";
 import { reloadPage } from "./reloader.js";
+import { DB } from "./db.js";
+const db = DB;
+/*
+The data flow order is messed up at the moment.
 
-//let myId = 54729316;
+The order of data flow should be one way, with one master managing the data. This should be the server.
+In this case, we should enforce a data flow from:
+
+
+          Admin ==>  Server ==> Client
+
+                    o======o
+            ------->|      |-------
+            |       |      |      V
+          Admin     |Server|    Client
+            ^       |      |      |
+            --------|      |<------
+                    o======o
+
+
+*/
+
 let socket = io();
 let activeWord = "";
 const $word = $("#word");
@@ -70,7 +90,7 @@ function sendFakeChat(name, comment) {
   handleMessage({ name, comment });
 }
 
-document.getElementById("chat").addEventListener("keyup", (e) => {
+document.getElementById("chat").addEventListener("keyup", e => {
   if (e.key === "Enter" || e.code === "13") {
     let el = e.target;
     let val = el.value;
@@ -114,10 +134,7 @@ function processWinner(msg) {
   }
   processLetters(msg.comment);
   winnerFound = true;
-  socket.emit(
-    "winner",
-    JSON.stringify({ name: msg.name, word: activeWord, userId: msg.userId })
-  );
+  socket.emit("winner", JSON.stringify({ name: msg.name, word: activeWord, userId: msg.userId }));
   Dev.Log(`winner: ${msg.name} with ${msg.comment}`);
   $winner.addClass("win");
   $winnerName.text(msg.name);
@@ -131,9 +148,7 @@ function processWinner(msg) {
 }
 
 function processLetters(guess) {
-  word
-    .compare(guess)
-    .forEach((findType, letter) => keyboard.markLetterFound(findType, letter));
+  word.compare(guess).forEach((findType, letter) => keyboard.markLetterFound(findType, letter));
 }
 
 function handleMessage(message) {
@@ -149,14 +164,15 @@ function handleMessage(message) {
   }
 }
 
-swEvents.onCheckWord((word) => {
+
+swEvents.onCheckWord(word => {
   if (word) {
     processLetters(word);
   }
 });
 
 const messageParser = new MessageParser();
-watchChatById(channelId, (msg) => {
+watchChatById(channelId, msg => {
   if (msg.comment && msg.comment.length > 0) {
     handleMessage(msg);
   }

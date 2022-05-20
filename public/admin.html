@@ -23,17 +23,9 @@
             <legend>Set Word</legend>
             <span>
               <label for="frmSetWordWord">Set Word</label>
-              <input
-                type="text"
-                name="word"
-                id="frmSetWordWord"
-                autocomplete="false"
-              />
+              <input type="text" name="word" id="frmSetWordWord" autocomplete="false" />
               <p>Recommended to keep the number of letters fewer than 8.</p>
-              <p>
-                Please keep in mind that the word must be something that YouNow
-                allows you to say in chat.
-              </p>
+              <p>Please keep in mind that the word must be something that YouNow allows you to say in chat.</p>
             </span>
             <span>
               <button type="submit" id="setWordButton">Set Word</button>
@@ -51,17 +43,10 @@
             </span>
             <span>
               <label for="hideWordFromStreamer">Hide Word From Me</label>
-              <input
-                type="checkbox"
-                name="hideWord"
-                id="hideWordFromStreamer"
-              />
+              <input type="checkbox" name="hideWord" id="hideWordFromStreamer" />
             </span>
             <span>
-              <p>
-                Will pick a random word between 4-6 characters long. Makes for
-                the best games!
-              </p>
+              <p>Will pick a random word between 4-6 characters long. Makes for the best games!</p>
             </span>
             <span>
               <button type="submit" id="setRandomWord">Set Random Word</button>
@@ -71,12 +56,8 @@
         <fieldset id="btnsManage" class="buttons">
           <legend>Manage</legend>
           <button type="button" id="copyObsUrl">Copy OBS Browser URL</button>
-          <button type="submit" name="message" value="clear" id="btnClear">
-            Clear Board
-          </button>
-          <button type="submit" name="message" value="login" id="btnLogin">
-            Log Into StreamNow/NowFinity
-          </button>
+          <button type="submit" name="message" value="clear" id="btnClear">Clear Board</button>
+          <button type="submit" name="message" value="login" id="btnLogin">Log Into StreamNow/NowFinity</button>
           <div id="messageHandler"></div>
         </fieldset>
         <form id="frmPointsForWinning">
@@ -92,20 +73,41 @@
             </span>
           </fieldset>
         </form>
-        <form id="frmStyleSettings">
-          <fieldset>
-            <legend>Style Settings</legend>
-            <span>
-              <label for="inpTopWordLetterColor">Top Word Letter Color</label>
-              <input
-                type="color"
-                name="inpTopWordLetterColor"
-                id="inpTopWordLetterColor"
-                value="#ff4500"
-              />
-            </span>
-          </fieldset>
-        </form>
+        <details class="row">
+          <summary>Style Settings</summary>
+          <span>
+            <input type="color" name="clrTopWordLetter" id="clrTopWordLetter" value="#ff4500" />
+            <label for="clrTopWordLetter">Top Word Letter Color</label>
+          </span>
+          <span>
+            <input type="color" name="clrTopWordLetterBackground" id="clrTopWordLetterBackground" value="#ff4500" />
+            <label for="clrTopWordLetterBackground">Top Word Letter Background</label>
+          </span>
+          <span>
+            <input type="color" name="clrKeyboardLetter" id="clrKeyboardLetter" value="#ff4500" />
+            <label for="clrKeyboardLetter">Keyboard Letter Color</label>
+          </span>
+          <span>
+            <input type="color" name="clrKeyboardBackground" id="clrKeyboardBackground" value="#ff4500" />
+            <label for="clrKeyboardBackground">Keyboard Background Color</label>
+          </span>
+          <span>
+            <input type="color" name="clrUnusedLetter" id="clrUnusedLetter" value="#ff4500" />
+            <label for="clrUnusedLetters">Unused Letter</label>
+          </span>
+          <span>
+            <input type="color" name="clrDiscoveredLetters" id="clrDiscoveredLetters" value="#ff4500" />
+            <label for="clrDiscoveredLetters">Discovered Letter</label>
+          </span>
+          <span>
+            <input type="color" name="clrFoundLetters" id="clrFoundLetters" value="#ff4500" />
+            <label for="clrFoundLetters">Found Letter</label>
+          </span>
+          <span>
+            <input type="color" name="clrUnusedLetters" id="clrUnusedLetters" value="#ff4500" />
+            <label for="clrUnusedLetters">Unused Letter</label>
+          </span>
+        </details>
       </section>
 
       <section class="leaders">
@@ -130,15 +132,12 @@
         setRandomWord,
         setPointsForm,
         setCopyObsUrlButton,
+        setColorControl,
       } from "./js/admin.js";
 
       setWord($("#frmSetWord"));
       setPointsForm($("#frmPointsForWinning"), $("#pointsForWin"));
-      setRandomWord(
-        $("#frmRandomWord"),
-        $("#wordListDictionary"),
-        $("#hideWordFromStreamer")
-      );
+      setRandomWord($("#frmRandomWord"), $("#wordListDictionary"), $("#hideWordFromStreamer"));
       setErrorContainer($("#errorContainer"));
       setClearBoardButton($("#btnClear"));
       setClearBoardButton($("#btnLogin"));
@@ -149,6 +148,16 @@
         $("#frmRandomWord"),
         $("#btnClear"),
         $("#frmPointsForWinning"),
+      ]);
+      setColorControl([
+        $("#clrTopWordLetter"),
+        $("#clrTopWordLetterBackground"),
+        $("#clrKeyboardLetter"),
+        $("#clrKeyboardBackground"),
+        $("#clrUnusedLetter"),
+        $("#clrDiscoveredLetters"),
+        $("#clrFoundLetters"),
+        $("#clrUnusedLetters"),
       ]);
 
       watchChatById("48832442", (...args) => {

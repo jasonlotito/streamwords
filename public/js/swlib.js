@@ -12,10 +12,148 @@ const EVENTS = Object.freeze({
   POINTS: "points",
   CHECK_WORD: "checkWord",
   NF_LOGIN: "nfLogin",
+  SET_COLOR: "setColor",
 });
 
 let socket;
 
+const CLIENT_SERVER = 1
+const CLIENT_ADMIN = 2
+const CLIENT_OVERLAY = 3
+
+function newServerClient(appName, socket, io, db) {
+  return new Swapp(appName, socket, io, db, CLIENT_SERVER)
+}
+function newAdminClient(appName, socket, io, db) {
+  return new Swapp(appName, socket, io, db, CLIENT_ADMIN)
+}
+function newOverlayClient(appName, socket, io, db) {
+  return new Swapp(appName, socket, io, db, CLIENT_OVERLAY)
+}
+/*
+Okay, so what we need to do now is ensure we know where we are. Are we the admin, the server, or the client.
+
+Why? Because something like getState will work different for different environments.
+ */
+
+// let's pretend to use this code for a moment, honestly, I should just  build tests for this
+
+
+//app = new Swapp("foo", s, i, d, CLIENT_ADMIN);
+// Wouldn't it be easier if we could write the admin code and the client code next to each other?
+
+class Swapp {
+  constructor(appName, socket, io, db, clientType) {
+    this.appName = appName;
+    this.socket = socket;
+    this.io = io;
+    this.state = {};
+    this.db = db;
+    this.eventHandlers = [];
+    this.clientType = clientType > 0 && clientType < 4 ? clientType : CLIENT_OVERLAY;
+    this.isAdmin = this.clientType === CLIENT_ADMIN;
+    this.isOverlay = this.clientType === CLIENT_OVERLAY;
+    this.isServer = this.clientType === CLIENT_SERVER;
+
+    if (this.isServer) {
+      // This handles state changes from admin to overlays
+      this.socket.on(`stateChange:${this.appName}`, state => {
+        this.io.emit(`stateChange:${this.appName}`, state)
+      });
+
+      // This handles events from overlays to admins
+      this.socket.on(`event:${this.appName}`, event => {
+        this.io.emit(`event:${this.appName}`, event);
+      });
+    }
+  }
+
+  // Emits the event
+  emitEvent(event, data) {
+    if (this.isOverlay) {
+     this.socket.emit(`event:${this.appName}`, JSON.stringify({event, data}));
+    }
+
+    if (this.isAdmin) {
+      throw new Error("Admins cannot emit events, only state changes.");
+    }
+  }
+
+  onEvent(event, handler) {
+    // Only the admin should handle events
+    if (this.isOverlay || this.isServer) {
+      throw new Error("Only the admin should handle the events!!");
+    }
+
+    if (typeof handler !== "function") {
+      throw new Error("handler must be a function")
+    }
+
+    this.eventHandlers[event] = handler
+
+    // Okay, this means the admin can now watch both events
+    this.socket.on(`event:${this.appName}`, event => {
+      try {
+        const {event, data} = JSON.parse(event);
+        if (this.eventHandlers[event]) {
+          this.eventHandlers[event](data)
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  }
+
+  getState() {
+    try {
+      const state = this.db.getState(this.appName);
+      return JSON.parse(state);
+    } catch (e) {
+      console.error(e);
+    }
+
+    return {}
+  }
+
+  // Emits the State Update
+  updateState(newState) {
+    // okay, if we are admin, this is what we do
+    if (this.isAdmin) {
+      this.state = newState;
+      const stringState = JSON.stringify(this.state)
+      this.db.setState(this.appName, stringState);
+      this.socket.emit(`stateChange:${this.appName}`, stringState);
+    }
+
+
+    // No the overlay cannot update state
+    if (this.isOverlay) {
+      throw new Error("Overlay cannot update state.")
+    }
+  }
+
+  // Handles the State Update
+  onStateChange(stateHandler) {
+   this.socket.on(`stateChange:${this.appName}`, msg => {
+     try {
+       const jsonParsed = JSON.parse(msg);
+       if (jsonParsed.app === this.appName) {
+         stateHandler(JSON.parse(jsonParsed.state));
+       }
+     } catch(e) {
+      console.error(e)
+     }
+   })
+  }
+}
+
+/*
+Things we can now assume, that we are the only people on this server.
+
+So, we shouldn't need to worry about managing rooms any more.
+
+We should also set it up so the clients can pass messages around
+ */
 /**
  *
  * @param {io} socket
@@ -28,6 +166,7 @@ class SWServer {
     this.sock = sock;
     this.io = io;
     socket = this.sock;
+    this.setupColorHandler();
   }
 
   setRoom(room) {
@@ -54,6 +193,12 @@ class SWServer {
     this.sock.on(EVENTS.NF_LOGIN, (msg) => {
       const { nfChannelId, nfChannelSignature } = JSON.parse(msg);
       cb(nfChannelId, nfChannelSignature);
+    });
+  }
+
+  setupColorHandler() {
+    this.sock.on(EVENTS.SET_COLOR, (msg) => {
+      this.io.emit(EVENTS.SET_COLOR, msg);
     });
   }
 
@@ -196,4 +341,7 @@ module.exports = {
   EVENTS,
   SWClient,
   SWServer,
+  newAdminClient,
+  newServerClient,
+  newOverlayClient
 };

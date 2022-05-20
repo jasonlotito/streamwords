@@ -6,13 +6,31 @@ const KEYS = {
   pointsPerWin: "com.jasonml.yourdle.pointsPerWin",
   room: "com.jasonml.yourdle.room",
   hideWord: "com.jasonml.yourdle.hideWord",
+  colors: "com.jasonml.yourdle.colors",
 };
+
+/*
+#TODO Turn this into a way of managing state.
+  We update the state from the admin, and submit it to the server. The server emits the update state to the client.
+  The client should only ever have to fetch the state on loading. This simplifies the entire flow of data, and we don't
+  have to worry about managing multiple sources of truth (the admin, the server, and the client).
+  When the server detects a new connection, it emits the state to the client. The admin can emit changes to the state,
+  the client cannot.
+*/
 
 const db = (() => {
   let watchList = {};
   let winners = [];
 
   const db = {
+    setState: (prefix, state) => localStorage.setItem(`com.jasonml.${prefix}.state`, state),
+    getState: (prefix) => localStorage.getItem(`com.jasonml.${prefix}.state`),
+    getColors: () => JSON.parse(localStorage.getItem(KEYS.colors)) ?? {},
+    setColor: (key, color) => {
+      const colors = db.getColors();
+      colors[key] = color;
+      localStorage.setItem(KEYS.colors, JSON.stringify(colors));
+    },
     setHideWord: (hide) =>
       localStorage.setItem(KEYS.hideWord, JSON.stringify(!!hide)),
     hideWord: () => JSON.parse(localStorage.getItem(KEYS.hideWord)) ?? false,

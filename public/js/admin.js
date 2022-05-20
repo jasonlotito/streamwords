@@ -22,9 +22,10 @@ if (location.search.toLowerCase().includes("debug=true")) {
   const DEBUG = false;
 }
 
+
 export function setErrorContainer($eError) {
   $errorContainer = $eError;
-  swEvents.onError((msg) => {
+  swEvents.onError(msg => {
     $frmSetWordWord.val("");
     db.addWord("");
     $frmSetWordWord.focus();
@@ -39,7 +40,7 @@ function showError(msg) {
 }
 
 export function setPointsForm($frm, $inpPoints) {
-  $frm.submit((e) => {
+  $frm.submit(e => {
     e.preventDefault();
     const points = $inpPoints.val();
     if (points < 1) {
@@ -55,7 +56,7 @@ export function setPointsForm($frm, $inpPoints) {
 
 export function setWord($frmSetWord) {
   Dev.Log("setWord click handler");
-  $frmSetWord.submit((e) => {
+  $frmSetWord.submit(e => {
     e.preventDefault();
     swEvents.clientEmitNewWord($frmSetWordWord.val(), true);
   });
@@ -63,7 +64,7 @@ export function setWord($frmSetWord) {
 
 export function setRandomWord($form, $wordList, $hide) {
   Dev.Log("setRandomWord");
-  $form.submit((e) => {
+  $form.submit(e => {
     e.preventDefault();
     swEvents.clientEmitRandomWord($wordList.val());
   });
@@ -99,26 +100,42 @@ export function setCopyObsUrlButton($btn) {
   });
 }
 
+// Set the color control element
+// Listen for color changes
+// Store color changes in the DB
+// Emit changes to the server
+// Have the server send changes to the client
+// Have client change the appropriate elements color
+/* <input type="color" name="clrTopWordLetter" id="clrTopWordLetter" value="#ff4500" /> */
+export function setColorControl(colorElements) {
+  colorElements.forEach($control => {
+    const name = $control.attr("name");
+    const val = $control.val();
+    console.log(`name: ${name}, val: ${val}`);
+    $control.change(e => {
+      console.log(e);
+      db.setColor(name, val)
+      console.log(`name: ${name}, val: ${val}`);
+      swEvents.clientEmitColor(name, val);
+    });
+  });
+}
+
 export function setLoginButton($btn, $messageHandler, requireLogin = []) {
   if (nfapi.isLoggedIn()) {
     $btn.text("Disconnect from StreamNow/NowFinity");
   }
-  $btn.click((e) => {
+  $btn.click(e => {
     e.preventDefault();
 
     if (nfapi.isLoggedIn()) {
       nfapi.logout();
       $btn.text("Log into StreamNow/NowFinity.");
-      requireLogin.forEach((e) => e.hide());
+      requireLogin.forEach(e => e.hide());
     } else {
-      let popup = window.open(
-        "http://localhost:3000/login.html",
-        "width=600,height=400,status=yes,scrollbars=yes,resizable=yes"
-      );
-
       checkLogin = setInterval(() => {
         if (nfapi.isLoggedIn()) {
-          requireLogin.forEach((e) => e.show());
+          requireLogin.forEach(e => e.show());
           clearTimeout(checkLogin);
         }
       }, 100);
@@ -126,7 +143,7 @@ export function setLoginButton($btn, $messageHandler, requireLogin = []) {
   });
 
   if (!nfapi.isLoggedIn()) {
-    requireLogin.forEach((e) => e.hide());
+    requireLogin.forEach(e => e.hide());
   }
 }
 
@@ -143,7 +160,7 @@ swEvents.onReload(() => {
   reloadPage(true);
 });
 
-swEvents.onRandomWordSet((w) => {
+swEvents.onRandomWordSet(w => {
   db.addWord(w);
   $frmSetWordWord.val(w);
 });
@@ -161,7 +178,7 @@ function joinRoom() {
   }
 }
 
-swEvents.onWinner((msg) => {
+swEvents.onWinner(msg => {
   Dev.Log(msg);
   Dev.Log(JSON.parse(msg));
   const { name, word, userId } = JSON.parse(msg);
@@ -181,12 +198,10 @@ function addPointsForWinner(name, userId, word) {
       isReward: true, // count to level?
       preBalanceValidation: false, // pre-validate balance before withdraw points to check if the viewer has enogh points
     })
-    .then((response) => {
-      manageResult.text(
-        `Winner ${response.channeluser.username} was awarded ${response.transaction.amount} points.`
-      );
+    .then(response => {
+      manageResult.text(`Winner ${response.channeluser.username} was awarded ${response.transaction.amount} points.`);
     })
-    .catch((error) => {
+    .catch(error => {
       manageResult.text(JSON.stringify(error, null, 2));
     });
 }

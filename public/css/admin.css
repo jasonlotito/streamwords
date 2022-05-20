@@ -25,7 +25,8 @@ label {
   /*width: 200px;*/
 }
 
-fieldset {
+fieldset,
+details {
   margin-top: 10px;
   display: flex;
   flex-direction: column;
@@ -38,7 +39,8 @@ fieldset {
   border-left-style: groove;
 }
 
-fieldset.buttons {
+fieldset.buttons,
+details.row {
   flex-direction: row;
   gap: 10px;
 }
@@ -131,4 +133,13 @@ footer {
   left: 50%;
   transform: translate(-50%, -50%);
   display: none;
+}
+
+details {
+  padding: 10px;
+}
+
+summary {
+  font-size: 2em;
+  cursor: pointer;
 }

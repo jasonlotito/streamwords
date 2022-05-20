@@ -12,6 +12,7 @@ const EVENTS = Object.freeze({
   POINTS: "points",
   CHECK_WORD: "checkWord",
   NF_LOGIN: "nfLogin",
+  SET_COLOR: "setColor",
 });
 
 export class SWClient {
@@ -67,6 +68,10 @@ export class SWClient {
 
   clientEmitNewWord(word, isNewWord = true) {
     this.emit(EVENTS.SET_WORD, { word, isNewWord });
+  }
+
+  clientEmitColor(nameOfColor, color) {
+    this.emit(EVENTS.SET_COLOR, { nameOfColor, color });
   }
 
   clientEmitRandomWord(wordList) {

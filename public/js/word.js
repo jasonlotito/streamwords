@@ -1,7 +1,8 @@
-export function Word ($word, socket) {
+export function Word ($word, {foundColor}) {
     this.el = $word;
     this.word = '';
     this.visible = true;
+    this.foundColor = foundColor;
 }
 
 function loopLetters(word, cb) {
@@ -10,6 +11,10 @@ function loopLetters(word, cb) {
         [chr, x] = getWholeCharAndI(word, x);
         cb(chr);
     }
+}
+
+Word.prototype.setFoundColor = function (foundColor) {
+    this.foundColor = foundColor;
 }
 
 Word.prototype.isVisible = function (visible) {
@@ -30,7 +35,7 @@ Word.prototype.show = function (word) {
 }
 
 Word.prototype.foundLetter = function(pos) {
-    $(this.el.children()[pos]).addClass('found')
+    $(this.el.children()[pos]).css('color', this.foundColor)
 }
 
 Word.prototype.compare = function(word) {

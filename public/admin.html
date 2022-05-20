@@ -75,6 +75,7 @@
         </form>
         <details class="row">
           <summary>Style Settings</summary>
+          <h2>Top Word Colors</h2>
           <span>
             <input type="color" name="clrTopWordLetter" id="clrTopWordLetter" value="#ff4500" />
             <label for="clrTopWordLetter">Top Word Letter Color</label>
@@ -83,17 +84,21 @@
             <input type="color" name="clrTopWordLetterBackground" id="clrTopWordLetterBackground" value="#ff4500" />
             <label for="clrTopWordLetterBackground">Top Word Letter Background</label>
           </span>
+
+          <h2>Keyboard Colors</h2>
           <span>
-            <input type="color" name="clrKeyboardLetter" id="clrKeyboardLetter" value="#ff4500" />
+            <input type="color" name="clrKeyboardLetter" id="clrKeyboardLetter" value="#ffffff" />
             <label for="clrKeyboardLetter">Keyboard Letter Color</label>
+            <p>This is the default color of the letters in the keyboard when it's first shown</p>
           </span>
           <span>
-            <input type="color" name="clrKeyboardBackground" id="clrKeyboardBackground" value="#ff4500" />
-            <label for="clrKeyboardBackground">Keyboard Background Color</label>
+            <input type="color" name="clrKeyboardBackground" id="clrKeyboardBackground" value="#333333" /> <label for="clrKeyboardBackground">Keyboard Background Color</label>
+            <p>This is the background color of the individual letters.</p>
           </span>
           <span>
-            <input type="color" name="clrUnusedLetter" id="clrUnusedLetter" value="#ff4500" />
-            <label for="clrUnusedLetters">Unused Letter</label>
+            <input type="color" name="clrUnusedLetter" id="clrUnusedLetter" value="#000000" />
+            <label for="clrUnusedLetter">Unused Letter</label>
+            <p>This is the color of the letters when they aren't used in the word at all.</p>
           </span>
           <span>
             <input type="color" name="clrDiscoveredLetters" id="clrDiscoveredLetters" value="#ff4500" />
@@ -104,8 +109,8 @@
             <label for="clrFoundLetters">Found Letter</label>
           </span>
           <span>
-            <input type="color" name="clrUnusedLetters" id="clrUnusedLetters" value="#ff4500" />
-            <label for="clrUnusedLetters">Unused Letter</label>
+            <input type="color" name="clrLetters" id="clrDefaultLetters" value="#ff4500" />
+            <label for="clrDefaultLetters">Unused Letter</label>
           </span>
         </details>
       </section>
@@ -157,7 +162,7 @@
         $("#clrUnusedLetter"),
         $("#clrDiscoveredLetters"),
         $("#clrFoundLetters"),
-        $("#clrUnusedLetters"),
+        $("#clrDefaultLetters"),
       ]);
 
       watchChatById("48832442", (...args) => {

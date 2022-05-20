@@ -41,7 +41,7 @@ Why? Because something like getState will work different for different environme
 
 //app = new Swapp("foo", s, i, d, CLIENT_ADMIN);
 // Wouldn't it be easier if we could write the admin code and the client code next to each other?
-
+// Let's ignore this for
 class Swapp {
   constructor(appName, socket, io, db, clientType) {
     this.appName = appName;
@@ -226,7 +226,7 @@ class SWServer {
   }
 
   onMessage(cb) {
-    this.sock.on(EVENTS.MESSAGE, (msg) => cb);
+    this.sock.on(EVENTS.MESSAGE, cb);
   }
 
   emitMessage(msg) {

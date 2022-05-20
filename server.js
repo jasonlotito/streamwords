@@ -72,6 +72,7 @@ io.on("connection", (socket) => {
     }
   });
 
+
   swServer.onNFLogin((channelId, channelSignature) => {
     console.log("NFLogin", channelId, channelSignature);
     swServer.emitNFLogin(channelId, channelSignature);
@@ -158,9 +159,7 @@ io.on("connection", (socket) => {
       if (winnerList.length > 10) {
         winnerList.shift();
       }
-    }
-  });
-
+    W });
   socket.on("close", () => {
     log("closing connection for ", socket);
     room = null;

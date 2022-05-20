@@ -74,6 +74,17 @@ export class SWClient {
     this.emit(EVENTS.SET_COLOR, { nameOfColor, color });
   }
 
+  onSetColor(cb) {
+    this.sock.on(EVENTS.SET_COLOR, msg => {
+      try {
+       const {nameOfColor, color} = JSON.parse(msg);
+       cb(nameOfColor, color);
+      } catch (e) {
+        console.error(e);
+      }
+    })
+  }
+
   clientEmitRandomWord(wordList) {
     this.emit(EVENTS.RANDOM_WORD, wordList);
   }

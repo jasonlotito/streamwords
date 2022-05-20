@@ -64,11 +64,21 @@ const alphabet = [
   "y",
   "z",
 ];
-const myId = params.get("id");
 const roomId = params.get("roomId");
 const channelId = params.get("channelId");
-const keyboard = new Keyboard($letters, alphabet);
-const word = new Word($word);
+const keyboard = new Keyboard($letters, alphabet, {
+  found: 'orangered',
+  used: 'cornflowerblue',
+  unused: 'black',
+  defaultColor: 'white',
+  backgroundColor: '#333333',
+  borderColor: 'black',
+});
+
+const word = new Word($word, {
+  foundColor: 'orangered'
+});
+
 let winnerFound = false;
 
 if (params.has("show")) {
@@ -113,6 +123,39 @@ if (DEBUG) {
 swEvents.onConnect(() => socket.emit("join", roomId));
 swEvents.onManageClear(() => setWord(""));
 swEvents.onSetWord(setWord);
+
+function setColorOnElement(colorName, color) {
+  switch (colorName) {
+    case 'clrTopWordLetter':
+      word.setFoundColor(color)
+      break;
+    case 'clrTopWordLetterBackground':
+      break;
+    case 'clrKeyboardLetter':
+      keyboard.setDefaultLetterColor(color)
+      break;
+    case 'clrKeyboardBackground':
+      keyboard.setBackgroundColor(color)
+      break;
+    case 'clrKeyboardBorderColor':
+      keyboard.setBorderColor(color)
+      break;
+    case 'clrunusedletter':
+      keyboard.setUnusedColor(color)
+      break;
+    case 'clrdiscoveredletters':
+      keyboard.setUsedColor(color)
+      break;
+    case 'clrFoundLetters':
+      keyboard.setFoundColor(color)
+      break;
+  }
+}
+
+swEvents.onSetColor((colorName, color) => {
+  db.setColor(colorName, color)
+  setColorOnElement(colorName, color);
+});
 
 function setWord(w) {
   Dev.Log(w);

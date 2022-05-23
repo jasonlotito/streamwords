@@ -159,7 +159,9 @@ io.on("connection", (socket) => {
       if (winnerList.length > 10) {
         winnerList.shift();
       }
-    W });
+     }
+  });
+
   socket.on("close", () => {
     log("closing connection for ", socket);
     room = null;
@@ -195,10 +197,5 @@ httpServer.listen(3000, () => {
 
   electronApp.whenReady().then(() => {
     createWindow();
-
-    protocol.registerFileProtocol("streamwords", (req, cb) => {
-      const url = request.url.substr(14);
-      console.log(url);
-    });
   });
 });

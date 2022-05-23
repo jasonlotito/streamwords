@@ -110,13 +110,11 @@ export function setCopyObsUrlButton($btn) {
 export function setColorControl(colorElements) {
   colorElements.forEach($control => {
     const name = $control.attr("name");
-    const val = $control.val();
-    console.log(`name: ${name}, val: ${val}`);
     $control.change(e => {
+      const color = $control.val();
       console.log(e);
-      db.setColor(name, val)
-      console.log(`name: ${name}, val: ${val}`);
-      swEvents.clientEmitColor(name, val);
+      db.setColor(name, $control.val())
+      swEvents.clientEmitColor(name, color);
     });
   });
 }

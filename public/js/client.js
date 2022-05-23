@@ -157,6 +157,14 @@ swEvents.onSetColor((colorName, color) => {
   setColorOnElement(colorName, color);
 });
 
+const colors = db.getColors()
+for (let key in colors) {
+  if (colors.hasOwnProperty(key))
+  {
+    setColorOnElement(key, colors[key])
+  }
+}
+
 function setWord(w) {
   Dev.Log(w);
   activeWord = w.toLowerCase();

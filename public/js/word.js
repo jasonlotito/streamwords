@@ -15,6 +15,9 @@ function loopLetters(word, cb) {
 
 Word.prototype.setFoundColor = function (foundColor) {
     this.foundColor = foundColor;
+    this.el.children(child => {
+        child.css('border-bottom', `10px solid ${this.foundColor}`)
+    })
 }
 
 Word.prototype.isVisible = function (visible) {
@@ -26,7 +29,9 @@ Word.prototype.show = function (word) {
     this.word = word;
     if(this.visible) {
         loopLetters(word, (chr) => {
-            this.el.append(`<span>${chr}</span>`)
+            const $letter = $(`<span>${chr}</span>`)
+            $letter.css('border-bottom', `10px solid ${this.foundColor}`)
+            this.el.append($letter)
         })
     }
 

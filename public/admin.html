@@ -18,51 +18,44 @@
     <div class="main">
       <section class="manage">
         <div id="errorContainer">This is an error message.</div>
-        <form action="setWord" id="frmSetWord">
-          <fieldset>
-            <legend>Set Word</legend>
-            <span>
+        <details>
+          <summary>Set Word</summary>
+          <form action="setWord" id="frmSetWord">
+              <span>
               <label for="frmSetWordWord">Set Word</label>
               <input type="text" name="word" id="frmSetWordWord" autocomplete="false" />
               <p>Recommended to keep the number of letters fewer than 8.</p>
               <p>Please keep in mind that the word must be something that YouNow allows you to say in chat.</p>
             </span>
-            <span>
+              <span>
               <button type="submit" id="setWordButton">Set Word</button>
             </span>
-          </fieldset>
-        </form>
-        <form action="setRandomWord" id="frmRandomWord">
-          <fieldset>
-            <legend>Set Random Word</legend>
-            <span>
+          </form>
+        </details>
+        <details>
+          <summary>Set Random Word</summary>
+          <form action="setRandomWord" id="frmRandomWord">
+              <span>
               <label for="wordListDictionary">Word List</label>
               <select id="wordListDictionary">
                 <option value="English">English</option>
               </select>
             </span>
-            <span>
+              <span>
               <label for="hideWordFromStreamer">Hide Word From Me</label>
               <input type="checkbox" name="hideWord" id="hideWordFromStreamer" />
             </span>
-            <span>
+              <span>
               <p>Will pick a random word between 4-6 characters long. Makes for the best games!</p>
             </span>
-            <span>
+              <span>
               <button type="submit" id="setRandomWord">Set Random Word</button>
             </span>
-          </fieldset>
-        </form>
-        <fieldset id="btnsManage" class="buttons">
-          <legend>Manage</legend>
-          <button type="button" id="copyObsUrl">Copy OBS Browser URL</button>
-          <button type="submit" name="message" value="clear" id="btnClear">Clear Board</button>
-          <button type="submit" name="message" value="login" id="btnLogin">Log Into StreamNow/NowFinity</button>
-          <div id="messageHandler"></div>
-        </fieldset>
-        <form id="frmPointsForWinning">
-          <fieldset>
-            <legend>Game Config</legend>
+          </form>
+        </details>
+        <details>
+          <summary>Points Config</summary>
+          <form id="frmPointsForWinning">
             <p>This will set the points in Streamnow.pro/NowFinity.</p>
             <span>
               <label for="pointsForWin">Points For Win</label>
@@ -71,8 +64,23 @@
             <span>
               <button type="submit">Set Points</button>
             </span>
-          </fieldset>
         </form>
+        </details>
+      </section>
+
+      <section class="leaders">
+        <details>
+          <summary>Last 10 Winners</summary>
+          <span id="manageResult"></span>
+          <ul id="winnerList"></ul>
+        </details>
+        <fieldset id="btnsManage" class="buttons">
+          <legend>Manage</legend>
+          <button type="button" id="copyObsUrl">Copy OBS Browser URL</button>
+          <button type="submit" name="message" value="clear" id="btnClear">Clear Board</button>
+          <button type="submit" name="message" value="login" id="btnLogin">Log Into StreamNow/NowFinity</button>
+          <div id="messageHandler"></div>
+        </fieldset>
         <details class="row">
           <summary>Style Settings</summary>
           <h2>Top Word Colors</h2>
@@ -113,12 +121,6 @@
             <label for="clrDefaultLetters">Unused Letter</label>
           </span>
         </details>
-      </section>
-
-      <section class="leaders">
-        <span id="manageResult"></span>
-        <h2>Last 10 Winners</h2>
-        <ul id="winnerList"></ul>
       </section>
       <section class="words">
         <h2>Word History</h2>

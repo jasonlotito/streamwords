@@ -78,6 +78,7 @@ body {
     "main" 1fr
     "footer" auto
     / 1fr;
+  user-select: none;
 }
 
 @media (min-width: 40em) {
@@ -85,7 +86,7 @@ body {
     display: grid;
     grid-gap: 1em;
     grid:
-      "manage leaders"
+      "manage settings"
       / 1fr 1fr;
   }
 }
@@ -133,6 +134,7 @@ footer {
   left: 50%;
   transform: translate(-50%, -50%);
   display: none;
+  user-select: text;
 }
 
 details {
@@ -142,4 +144,8 @@ details {
 summary {
   font-size: 2em;
   cursor: pointer;
+}
+
+#winnerList li {
+  user-select: text;
 }

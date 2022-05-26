@@ -13,33 +13,41 @@ export function Keyboard(el, alphabet, {found, used, unused, defaultColor, backg
 
 Keyboard.prototype.setBackgroundColor = function(color) {
     this.backgroundColor = color;
+    this.refreshColors();
 }
 
 Keyboard.prototype.setBorderColor = function(color) {
     this.borderColor = color;
+    this.refreshColors();
 }
 
 Keyboard.prototype.setDefaultLetterColor = function(color) {
     this.defaultColor = color;
+    this.refreshColors();
 }
 
 Keyboard.prototype.setFoundColor = function(color) {
     this.foundColor = color;
+    this.refreshColors();
 }
 
 Keyboard.prototype.setUsedColor = function(color) {
     this.usedColor = color;
+    this.refreshColors();
 }
 
 Keyboard.prototype.setUnusedColor = function(color) {
     this.unusedColor = color;
+    this.refreshColors();
 }
 
 Keyboard.prototype.resetLetters = function() {
     if (this.visible) {
         this.el.html('')
         this.alphabet.forEach(letter => {
-            this.el.append(`<span style="border-color: ${this.borderColor}; color: ${this.defaultColor}; background-color: ${this.backgroundColor}">${letter}</span>`)
+            const $letter = $(`<span style="border-color: ${this.borderColor}; color: ${this.defaultColor}; background-color: ${this.backgroundColor}">${letter}</span>`);
+            $letter.attr('x-state', 'default')
+            this.el.append($letter)
         });
     }
 }
@@ -58,6 +66,29 @@ Keyboard.prototype.show = function() {
     }
 }
 
+Keyboard.prototype.refreshColors = function() {
+    const lettersChildren = Array.from(this.el.children());
+    lettersChildren.forEach(letter => {
+        letter = $(letter)
+        switch(letter.attr('x-state')) {
+            case 'found':
+                letter.css('color', this.foundColor)
+                break;
+            case 'used':
+                letter.css('color', this.usedColor)
+                break;
+            case 'unused':
+                letter.css('color', this.unusedColor)
+                break;
+            default:
+                letter.css('color', this.defaultColor)
+                break;
+        }
+        letter.css('border-color', this.borderColor)
+        letter.css('background-color', this.backgroundColor)
+    });
+}
+
 Keyboard.prototype.markLetterFound = function (findType, letter) {
     const idx = this.alphabet.indexOf(letter);
 
@@ -65,16 +96,20 @@ Keyboard.prototype.markLetterFound = function (findType, letter) {
         return;
     }
 
-    const lettersChildren = this.el.children();
+    const lettersChildren = Array.from(this.el.children());
+    const $letter = $(lettersChildren[idx]);
     switch (findType) {
         case 1:
-            $(lettersChildren[idx]).css('color',this.foundColor);
+            $letter.css('color', this.foundColor);
+            $letter.attr('x-state', 'found')
             break;
         case 0:
-            $(lettersChildren[idx]).css('color',this.usedColor);
+            $letter.css('color', this.usedColor);
+            $letter.attr('x-state', 'used')
             break;
         default:
-            $(lettersChildren[idx]).css('color', this.unusedColor);
+            $letter.css('color', this.unusedColor);
+            $letter.attr('x-state', 'unused')
             break;
     }
 }

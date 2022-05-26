@@ -7,7 +7,7 @@
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Document</title>
+    <title>StreamWords OBS</title>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://js.pusher.com/3.0/pusher.min.js"></script>
@@ -21,6 +21,7 @@
       body {
         margin: 0;
         padding: 0;
+        background-color: transparent;
       }
 
       input,
@@ -49,6 +50,8 @@
         font-size: 7em;
         text-align: center;
         display: block;
+        max-width: 50%;
+        margin: 0 auto;
       }
 
       #word span {
@@ -136,6 +139,13 @@
         animation: winner 1s linear;
       }
 
+      #game {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+
       @keyframes winner {
         0% {
           top: 0%;
@@ -151,6 +161,7 @@
     </style>
   </head>
   <body>
+  <div id="game">
     <div id="word" value=""></div>
     <div id="letters" class="hide"></div>
     <div id="winner">
@@ -159,6 +170,7 @@
       <span id="winnerWord">word</span>
       <span>!!!!</span>
     </div>
+  </div>
 
     <footer id="debugArea">
       <input

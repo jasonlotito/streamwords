@@ -66,9 +66,7 @@ io.on("connection", (socket) => {
     swServer.joinRoom(room);
     if (wordList.has(room)) {
       console.log(`Found ${room} word: ${wordList.get(room)}`);
-      setTimeout(() => {
-        swServer.serverEmitNewWord(wordList.get(room));
-      }, 1000);
+      swServer.serverEmitNewWord(wordList.get(room));
     }
   });
 
@@ -186,12 +184,20 @@ httpServer.listen(3000, () => {
     const win = new BrowserWindow({
       width: 800,
       height: 600,
+      title: "This is just a test",
+      transparent: true,
     });
     win.loadFile("./public/admin.html");
+    //win.setMenuBarVisibility(false)
 
     win.webContents.on("new-window", (e, url) => {
       e.preventDefault();
       shell.openExternal(url);
+    });
+
+    const settingsWindow = new BrowserWindow({
+      width: 400,
+      height: 600,
     });
   };
 

@@ -87,10 +87,17 @@
           <span>
             <input type="color" name="clrTopWordLetter" id="clrTopWordLetter" value="#ff4500" />
             <label for="clrTopWordLetter">Top Word Letter Color</label>
+            <p>The color of the letter when it's found at the top.</p>
           </span>
           <span>
             <input type="color" name="clrTopWordLetterBackground" id="clrTopWordLetterBackground" value="#ff4500" />
             <label for="clrTopWordLetterBackground">Top Word Letter Background</label>
+            <p>The background color of the word at the top.</p>
+          </span>
+          <span>
+            <input type="range" name="alphaTopWordLetterBackground" id="alphaTopWordLetterBackground" min="0" max="100">
+            <input type="number" id="alphaTopWordLetterBackgroundValue">
+            <label for="alphaTopWordLetterBackground">Top Word Letter Background Alpha</label>
           </span>
 
           <h2>Keyboard Colors</h2>
@@ -104,6 +111,11 @@
             <p>This is the background color of the individual letters.</p>
           </span>
           <span>
+            <input type="color" name="clrKeyboardBorderColor" id="clrKeyboardBorderColor" value="#333333" />
+            <label for="clrKeyboardBorderColor">Keyboard Border Color</label>
+            <p>This is the border color around each of the letters.</p>
+          </span>
+          <span>
             <input type="color" name="clrUnusedLetter" id="clrUnusedLetter" value="#000000" />
             <label for="clrUnusedLetter">Unused Letter</label>
             <p>This is the color of the letters when they aren't used in the word at all.</p>
@@ -111,14 +123,12 @@
           <span>
             <input type="color" name="clrDiscoveredLetters" id="clrDiscoveredLetters" value="#ff4500" />
             <label for="clrDiscoveredLetters">Discovered Letter</label>
+            <p>This is the color of a letter when the letter is found to be used in the word, but you haven't found the location of the letter in the word.</p>
           </span>
           <span>
             <input type="color" name="clrFoundLetters" id="clrFoundLetters" value="#ff4500" />
             <label for="clrFoundLetters">Found Letter</label>
-          </span>
-          <span>
-            <input type="color" name="clrLetters" id="clrDefaultLetters" value="#ff4500" />
-            <label for="clrDefaultLetters">Unused Letter</label>
+            <p>A letter that is in the word. At least one position has been found.</p>
           </span>
         </details>
       </section>
@@ -128,7 +138,6 @@
       </section>
     </div>
 
-    <footer></footer>
     <script src="js/vendor/socket.io.min.js"></script>
     <script type="module">
       import {
@@ -140,6 +149,7 @@
         setPointsForm,
         setCopyObsUrlButton,
         setColorControl,
+        setAlphaControl,
       } from "./js/admin.js";
 
       setWord($("#frmSetWord"));
@@ -156,6 +166,7 @@
         $("#btnClear"),
         $("#frmPointsForWinning"),
       ]);
+      setAlphaControl([$("#alphaTopWordLetterBackground")]);
       setColorControl([
         $("#clrTopWordLetter"),
         $("#clrTopWordLetterBackground"),

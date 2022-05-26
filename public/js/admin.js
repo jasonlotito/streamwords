@@ -100,6 +100,26 @@ export function setCopyObsUrlButton($btn) {
   });
 }
 
+export function setAlphaControl(alphaElements) {
+  alphaElements.forEach($control => {
+     const valueContainerId =  `#${$control.attr('id')}Value`
+    console.log(valueContainerId)
+     const $alphaValueContainer = $(valueContainerId);
+     $control.change( e => {
+        $alphaValueContainer.val($control.val());
+        emitAlphaChange($alphaValueContainer)
+     });
+
+     $alphaValueContainer.change(e => {
+       emitAlphaChange($alphaValueContainer)
+     });
+  })
+}
+
+function emitAlphaChange($container) {
+  console.log(`emit new alpha change ${$container.val()}`)
+}
+
 // Set the color control element
 // Listen for color changes
 // Store color changes in the DB
@@ -110,6 +130,12 @@ export function setCopyObsUrlButton($btn) {
 export function setColorControl(colorElements) {
   colorElements.forEach($control => {
     const name = $control.attr("name");
+    const colors = db.getColors()
+
+    if(colors[name]) {
+      $control.val(colors[name])
+    }
+
     $control.change(e => {
       const color = $control.val();
       console.log(e);
@@ -127,17 +153,24 @@ export function setLoginButton($btn, $messageHandler, requireLogin = []) {
     e.preventDefault();
 
     if (nfapi.isLoggedIn()) {
-      nfapi.logout();
-      $btn.text("Log into StreamNow/NowFinity.");
-      requireLogin.forEach(e => e.hide());
+      if(window.confirm("Are you sure you want to disconnect"))  {
+        nfapi.logout();
+        $btn.text("Log into StreamNow/NowFinity.");
+        requireLogin.forEach(e => e.hide());
+      }
     } else {
-      checkLogin = setInterval(() => {
+      let checkLogin = setInterval(() => {
         if (nfapi.isLoggedIn()) {
           requireLogin.forEach(e => e.show());
           clearTimeout(checkLogin);
         }
       }, 100);
+      let popup = window.open(
+          "http://localhost:3000/login.html",
+          "width=600,height=400,status=yes,scrollbars=yes,resizable=yes"
+      );
     }
+
   });
 
   if (!nfapi.isLoggedIn()) {

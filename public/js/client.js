@@ -130,6 +130,7 @@ function setColorOnElement(colorName, color) {
       word.setFoundColor(color)
       break;
     case 'clrTopWordLetterBackground':
+      word.setBackgroundColor(color)
       break;
     case 'clrKeyboardLetter':
       keyboard.setDefaultLetterColor(color)
@@ -140,10 +141,10 @@ function setColorOnElement(colorName, color) {
     case 'clrKeyboardBorderColor':
       keyboard.setBorderColor(color)
       break;
-    case 'clrunusedletter':
+    case 'clrUnusedLetter':
       keyboard.setUnusedColor(color)
       break;
-    case 'clrdiscoveredletters':
+    case 'clrDiscoveredLetters':
       keyboard.setUsedColor(color)
       break;
     case 'clrFoundLetters':

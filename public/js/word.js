@@ -1,8 +1,9 @@
-export function Word ($word, {foundColor}) {
+export function Word ($word, {foundColor, backgroundColor}) {
     this.el = $word;
     this.word = '';
     this.visible = true;
     this.foundColor = foundColor;
+    this.backgroundColor = backgroundColor;
 }
 
 function loopLetters(word, cb) {
@@ -15,11 +16,25 @@ function loopLetters(word, cb) {
 
 Word.prototype.setFoundColor = function (foundColor) {
     this.foundColor = foundColor;
-    this.el.children(child => {
-        child.css('border-bottom', `10px solid ${this.foundColor}`)
-    })
+    this.refreshColors();
 }
 
+Word.prototype.setBackgroundColor = function(color) {
+    this.backgroundColor = color;
+    this.refreshColors();
+};
+
+Word.prototype.refreshColors = function() {
+    Array.from(this.el.children()).forEach(child => {
+        child = $(child)
+        child.css('border-bottom', `10px solid ${this.foundColor}`)
+        if(child.attr('x-state') === 'found') {
+            child.css('color', this.foundColor)
+        }
+    })
+
+    this.el.css('background-color', this.backgroundColor);
+}
 Word.prototype.isVisible = function (visible) {
     this.visible = visible;
 }
@@ -30,9 +45,12 @@ Word.prototype.show = function (word) {
     if(this.visible) {
         loopLetters(word, (chr) => {
             const $letter = $(`<span>${chr}</span>`)
+            $letter.attr('x-state', 'unfound');
             $letter.css('border-bottom', `10px solid ${this.foundColor}`)
             this.el.append($letter)
         })
+
+        this.el.css('background-color', this.backgroundColor);
     }
 
 

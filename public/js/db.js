@@ -7,6 +7,7 @@ const KEYS = {
   room: "com.jasonml.yourdle.room",
   hideWord: "com.jasonml.yourdle.hideWord",
   colors: "com.jasonml.yourdle.colors",
+  alphas: "com.jasonml.yourdle.aplhas",
 };
 
 /*
@@ -23,6 +24,10 @@ const db = (() => {
   let winners = [];
 
   const db = {
+    setAlpha: (key, alpha) => {
+      const alphas = db.getAlphas()
+    },
+    getAlphas: () => JSON.parse(localStorage.getItem(KEYS.alphas)) ?? {},
     setState: (prefix, state) => localStorage.setItem(`com.jasonml.${prefix}.state`, state),
     getState: (prefix) => localStorage.getItem(`com.jasonml.${prefix}.state`),
     getColors: () => JSON.parse(localStorage.getItem(KEYS.colors)) ?? {},

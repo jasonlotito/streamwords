@@ -1,9 +1,10 @@
-export function Word ($word, {foundColor, backgroundColor}) {
+export function Word ($word, {foundColor, backgroundColor, backgroundAlpha = 1}) {
     this.el = $word;
     this.word = '';
     this.visible = true;
     this.foundColor = foundColor;
     this.backgroundColor = backgroundColor;
+    this.backgroundAlpha = backgroundAlpha;
 }
 
 function loopLetters(word, cb) {
@@ -23,6 +24,10 @@ Word.prototype.setBackgroundColor = function(color) {
     this.backgroundColor = color;
     this.refreshColors();
 };
+
+Word.prototype.setBackgroundAlpha = function(alpha) {
+    this.backgroundAlpha = alpha;
+}
 
 Word.prototype.refreshColors = function() {
     Array.from(this.el.children()).forEach(child => {

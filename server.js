@@ -1,13 +1,13 @@
 const electron = require("electron");
-const BrowserWindow = electron.BrowserWindow;
-const electronApp = electron.app;
-const shell = electron.shell;
-const protocol = electron.protocol;
+// const BrowserWindow = electron.BrowserWindow;
+// const electronApp = electron.app;
+// const shell = electron.shell;
+// const protocol = electron.protocol;
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-const { fileURLToPath } = require("url");
-const { dirname } = require("path");
+// const { fileURLToPath } = require("url");
+// const { dirname } = require("path");
 const { SWServer, EVENTS } = require("./public/js/swlib");
 const wordlist = require("wordlist-english");
 const Filter = require("bad-words");
@@ -180,28 +180,5 @@ io.on("connection", (socket) => {
 });
 
 httpServer.listen(3000, () => {
-  const createWindow = () => {
-    const win = new BrowserWindow({
-      width: 800,
-      height: 600,
-      title: "This is just a test",
-      transparent: true,
-    });
-    win.loadFile("./public/admin.html");
-    //win.setMenuBarVisibility(false)
-
-    win.webContents.on("new-window", (e, url) => {
-      e.preventDefault();
-      shell.openExternal(url);
-    });
-
-    const settingsWindow = new BrowserWindow({
-      width: 400,
-      height: 600,
-    });
-  };
-
-  electronApp.whenReady().then(() => {
-    createWindow();
-  });
+  console.log('Listening at http://localhost:3000')
 });

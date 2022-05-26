@@ -93,7 +93,7 @@ if (params.has("show")) {
 }
 
 const swEvents = new SWClient(socket);
-Dev.Log("Hello");
+
 function sendFakeChat(name, comment) {
   Dev.Log(`${name} said ${comment}`);
 
@@ -131,6 +131,9 @@ function setColorOnElement(colorName, color) {
       break;
     case 'clrTopWordLetterBackground':
       word.setBackgroundColor(color)
+      break;
+    case 'alphaTopWordLetterBackground':
+      word.setBackgroundAlpha(color)
       break;
     case 'clrKeyboardLetter':
       keyboard.setDefaultLetterColor(color)

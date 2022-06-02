@@ -26,6 +26,8 @@ const db = (() => {
   const db = {
     setAlpha: (key, alpha) => {
       const alphas = db.getAlphas()
+      alphas[key] = alpha;
+      localStorage.setItem(KEYS.alphas, JSON.stringify(alphas));
     },
     getAlphas: () => JSON.parse(localStorage.getItem(KEYS.alphas)) ?? {},
     setState: (prefix, state) => localStorage.setItem(`com.jasonml.${prefix}.state`, state),

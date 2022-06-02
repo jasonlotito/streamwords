@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <title>StreamWords Admin</title>
     <script src="js/vendor/jquery-3.6.0.min.js"></script>
     <script src="./js/vendor/nfapiwrapper.js"></script>
@@ -11,136 +11,175 @@
 
     <script src="webSocket.js"></script>
 
-    <link rel="stylesheet" href="css/admin.css" />
-  </head>
+    <link rel="stylesheet" href="css/admin.css"/>
+</head>
 
-  <body>
-    <div class="main">
-      <section class="manage">
-        <div id="errorContainer">This is an error message.</div>
-        <details>
-          <summary>Set Word</summary>
-          <form action="setWord" id="frmSetWord">
-              <span>
-              <label for="frmSetWordWord">Set Word</label>
-              <input type="text" name="word" id="frmSetWordWord" autocomplete="false" />
-              <p>Recommended to keep the number of letters fewer than 8.</p>
-              <p>Please keep in mind that the word must be something that YouNow allows you to say in chat.</p>
-            </span>
-              <span>
-              <button type="submit" id="setWordButton">Set Word</button>
-            </span>
-          </form>
-        </details>
-        <details>
-          <summary>Set Random Word</summary>
-          <form action="setRandomWord" id="frmRandomWord">
-              <span>
-              <label for="wordListDictionary">Word List</label>
-              <select id="wordListDictionary">
-                <option value="English">English</option>
-              </select>
-            </span>
-              <span>
-              <label for="hideWordFromStreamer">Hide Word From Me</label>
-              <input type="checkbox" name="hideWord" id="hideWordFromStreamer" />
-            </span>
-              <span>
-              <p>Will pick a random word between 4-6 characters long. Makes for the best games!</p>
-            </span>
-              <span>
-              <button type="submit" id="setRandomWord">Set Random Word</button>
-            </span>
-          </form>
-        </details>
-        <details>
-          <summary>Points Config</summary>
-          <form id="frmPointsForWinning">
-            <p>This will set the points in Streamnow.pro/NowFinity.</p>
-            <span>
-              <label for="pointsForWin">Points For Win</label>
-              <input type="number" id="pointsForWin" value="100" />
-            </span>
-            <span>
-              <button type="submit">Set Points</button>
-            </span>
-        </form>
-        </details>
-      </section>
+<body>
+<header class="header">
+    <h1>by jasonml</h1>
+</header>
+<div class="main">
+    <ul class="tabs">
+        <li>
+            <input type="radio" class="tab" name="streamWords" id="appStreamWords" checked/>
+            <label class="tab" for="appStreamWords" aria-selected="true" aria-controls="panel1">StreamWords</label>
+            <div id="appStreamWordsContent" class="tab-content">
+                <section class="manage">
+                    <h1>StreamWords</h1>
+                    <div id="errorContainer">This is an error message.</div>
+                    <details>
+                        <summary>Word Game</summary>
+                        <form action="setWord" id="frmSetWord">
+                            <span>
+                              <label for="frmSetWordWord">Set Word</label>
+                              <input type="text" name="word" id="frmSetWordWord" autocomplete="false"/>
+                              <p>Recommended to keep the number of letters fewer than 7.</p>
+                              <p>Please keep in mind that the word must be something that YouNow allows you to say in chat.</p>
+                            </span>
+                            <button type="submit" id="setWordButton">Set Word</button>
+                            <button type="button" name="message" value="clear" id="btnClear">Clear Board</button>
+                        </form>
+                    </details>
+                    <details>
+                        <summary>Random Word Game</summary>
+                        <form action="setRandomWord" id="frmRandomWord">
+                          <span>
+                          <label for="wordListDictionary">Word List</label>
+                          <select id="wordListDictionary">
+                              <option value="English">English</option>
+                          </select>
+                        </span>
+                            <span>
+                            <label for="hideWordFromStreamer">Hide Word From Me</label>
+                            <input type="checkbox" name="hideWord" id="hideWordFromStreamer"/>
+                              <p>Will pick a random word between 3-6 characters long. Makes for the best games!</p>
+                            </span>
+                            <span>
+                              <button type="submit" id="setRandomWord">Set Random Word</button>
+                            </span>
+                        </form>
+                    </details>
+                    <details>
+                        <summary>Previous Winners</summary>
+                        <span id="manageResult"></span>
+                        <ul id="winnerList"></ul>
+                    </details>
+                    <details>
+                        <summary>Points Config</summary>
+                        <form id="frmPointsForWinning">
+                            <p>This will set the points in Streamnow.pro/NowFinity.</p>
+                            <span>
+                                <label for="pointsForWin">Points For Win</label>
+                                <input type="number" id="pointsForWin" value="99"/>
+                            </span>
+                            <span>
+                                <button type="submit">Set Points</button>
+                            </span>
+                        </form>
+                    </details>
+                    <details class="row">
+                        <summary>Style Settings</summary>
+                        <h2>Top Word Colors</h2>
+                        <span>
+                            <input type="color" name="clrTopWordLetter" id="clrTopWordLetter" value="#ff4500"/>
+                            <label for="clrTopWordLetter">Top Word Letter Color</label>
+                            <p>The color of the letter when it's found at the top.</p>
+                        </span>
+                        <span>
+                            <input type="color" name="clrTopWordLetterBackground" id="clrTopWordLetterBackground" value="#ffffff"/>
+                            <label for="clrTopWordLetterBackground">Top Word Letter Background</label>
+                            <p>The background color of the word at the top.</p>
+                        </span>
+                        <span>
+                            <input type="range" name="alphaTopWordLetterBackground" id="alphaTopWordLetterBackground" min="0" max="100" value="0">
+                            <input type="number" id="alphaTopWordLetterBackgroundValue">
+                            <label for="alphaTopWordLetterBackground">Top Word Letter Background Alpha</label>
+                        </span>
 
-      <section class="leaders">
-        <details>
-          <summary>Last 10 Winners</summary>
-          <span id="manageResult"></span>
-          <ul id="winnerList"></ul>
-        </details>
-        <fieldset id="btnsManage" class="buttons">
-          <legend>Manage</legend>
-          <button type="button" id="copyObsUrl">Copy OBS Browser URL</button>
-          <button type="submit" name="message" value="clear" id="btnClear">Clear Board</button>
-          <button type="submit" name="message" value="login" id="btnLogin">Log Into StreamNow/NowFinity</button>
-          <div id="messageHandler"></div>
-        </fieldset>
-        <details class="row">
-          <summary>Style Settings</summary>
-          <h2>Top Word Colors</h2>
-          <span>
-            <input type="color" name="clrTopWordLetter" id="clrTopWordLetter" value="#ff4500" />
-            <label for="clrTopWordLetter">Top Word Letter Color</label>
-            <p>The color of the letter when it's found at the top.</p>
-          </span>
-          <span>
-            <input type="color" name="clrTopWordLetterBackground" id="clrTopWordLetterBackground" value="#ff4500" />
-            <label for="clrTopWordLetterBackground">Top Word Letter Background</label>
-            <p>The background color of the word at the top.</p>
-          </span>
-          <span>
-            <input type="range" name="alphaTopWordLetterBackground" id="alphaTopWordLetterBackground" min="0" max="100">
-            <input type="number" id="alphaTopWordLetterBackgroundValue">
-            <label for="alphaTopWordLetterBackground">Top Word Letter Background Alpha</label>
-          </span>
+                        <h2>Keyboard Colors</h2>
+                        <span>
+                            <input type="color" name="clrKeyboardLetter" id="clrKeyboardLetter" value="#ffffff"/>
+                            <label for="clrKeyboardLetter">keyboard letter color</label>
+                            <p>this is the default color of the letters in the keyboard when it's first shown</p>
+                        </span>
+                        <span>
+                            <input type="color" name="clrKeyboardBackground" id="clrKeyboardBackground"
+                                   value="#333332"/> <label
+                                for="clrKeyboardBackground">Keyboard Background Color</label>
+                            <p>This is the background color of the individual letters.</p>
+                        </span>
+                        <span>
+                            <input type="color" name="clrKeyboardBorderColor" id="clrKeyboardBorderColor"
+                                   value="#333332"/>
+                            <label for="clrKeyboardBorderColor">Keyboard Border Color</label>
+                            <p>This is the border color around each of the letters.</p>
+                        </span>
+                        <span>
+                            <input type="color" name="clrUnusedLetter" id="clrUnusedLetter" value="#000000"/>
+                            <label for="clrUnusedLetter">Unused Letter</label>
+                            <p>This is the color of the letters when they aren't used in the word at all.</p>
+                        </span>
+                        <span>
+                            <input type="color" name="clrDiscoveredLetters" id="clrDiscoveredLetters" value="#6495ed"/>
+                            <label for="clrDiscoveredLetters">Discovered Letter</label>
+                            <p>This is the color of a letter when the letter is found to be used in the word, but you haven't found the location of the letter in the word.</p>
+                        </span>
+                        <span>
+                            <input type="color" name="clrFoundLetters" id="clrFoundLetters" value="#ff4500"/>
+                            <label for="clrFoundLetters">Found Letter</label>
+                            <p>A letter that is in the word. At least one position has been found.</p>
+                        </span>
+                        <span>
+                            <input type="color" name="clrWinnerText" id="clrWinnerText" value="#000000">
+                            <label for="clrWinnerText">Winner Box Text Color</label>
+                            <p>This is the color used for the text in the winner's box.</p>
+                        </span>
+                        <span>
+                            <input type="color" name="clrWinnerBorder" id="clrWinnerBorder" value="#ff4500">
+                            <label for="clrWinnerBorder">Winner Box Border Color</label>
+                            <p>This is the color used for the border of the winner's box.</p>
+                        </span>
+                        <span>
+                            <input type="color" name="clrWinnerBackground" id="clrWinnerBackground" value="#ff9500">
+                            <label for="clrWinnerBackground">Winner Box Background Color</label>
+                            <p>This is the color used for the background of the winner's box.</p>
+                        </span>
+                    </details>
+                </section>
+                <section class="preview">
+                    <h1>Preview</h1>
+                    <iframe id="iframePreview" src="" width="800px" height="400px"></iframe>
+                </section>
+            </div>
+        </li>
+        <li>
+            <input type="radio" class="tab" name="streamWords" id="appSettings"/>
+            <label class="tab" for="appSettings" aria-selected="false" aria-controls="panel2">Settings</label>
+            <div id="appSettingsContent" , class="tab-content">
+                <h1>Settings</h1>
+                <fieldset id="btnsManage" class="buttons">
+                    <legend>Manage</legend>
+                    <button type="submit" name="message" value="login" id="btnLogin">Log Into StreamNow/NowFinity
+                    </button>
+                    <div id="messageHandler"></div>
+                </fieldset>
+                <h1>OBS</h1>
+                <fieldset>
+                    <legend>StreamWords</legend>
+                    <button type="button" id="copyObsUrl">Copy OBS Browser URL</button>
+                    <input type="text" name="obsUrl" id="streamwordsObsUrl" class="hide">
+                </fieldset>
+            </div>
+        </li>
+    </ul>
+</div>
+<footer class="footer">
 
-          <h2>Keyboard Colors</h2>
-          <span>
-            <input type="color" name="clrKeyboardLetter" id="clrKeyboardLetter" value="#ffffff" />
-            <label for="clrKeyboardLetter">Keyboard Letter Color</label>
-            <p>This is the default color of the letters in the keyboard when it's first shown</p>
-          </span>
-          <span>
-            <input type="color" name="clrKeyboardBackground" id="clrKeyboardBackground" value="#333333" /> <label for="clrKeyboardBackground">Keyboard Background Color</label>
-            <p>This is the background color of the individual letters.</p>
-          </span>
-          <span>
-            <input type="color" name="clrKeyboardBorderColor" id="clrKeyboardBorderColor" value="#333333" />
-            <label for="clrKeyboardBorderColor">Keyboard Border Color</label>
-            <p>This is the border color around each of the letters.</p>
-          </span>
-          <span>
-            <input type="color" name="clrUnusedLetter" id="clrUnusedLetter" value="#000000" />
-            <label for="clrUnusedLetter">Unused Letter</label>
-            <p>This is the color of the letters when they aren't used in the word at all.</p>
-          </span>
-          <span>
-            <input type="color" name="clrDiscoveredLetters" id="clrDiscoveredLetters" value="#ff4500" />
-            <label for="clrDiscoveredLetters">Discovered Letter</label>
-            <p>This is the color of a letter when the letter is found to be used in the word, but you haven't found the location of the letter in the word.</p>
-          </span>
-          <span>
-            <input type="color" name="clrFoundLetters" id="clrFoundLetters" value="#ff4500" />
-            <label for="clrFoundLetters">Found Letter</label>
-            <p>A letter that is in the word. At least one position has been found.</p>
-          </span>
-        </details>
-      </section>
-      <section class="words">
-        <h2>Word History</h2>
-        <ul id="wordList"></ul>
-      </section>
-    </div>
+</footer>
 
-    <script src="js/vendor/socket.io.min.js"></script>
-    <script type="module">
-      import {
+<script src="js/vendor/socket.io.min.js"></script>
+<script type="module">
+    import {
         setWord,
         setClearBoardButton,
         setLoginButton,
@@ -150,24 +189,24 @@
         setCopyObsUrlButton,
         setColorControl,
         setAlphaControl,
-      } from "./js/admin.js";
+    } from "./js/admin.js";
 
-      setWord($("#frmSetWord"));
-      setPointsForm($("#frmPointsForWinning"), $("#pointsForWin"));
-      setRandomWord($("#frmRandomWord"), $("#wordListDictionary"), $("#hideWordFromStreamer"));
-      setErrorContainer($("#errorContainer"));
-      setClearBoardButton($("#btnClear"));
-      setClearBoardButton($("#btnLogin"));
-      setCopyObsUrlButton($("#copyObsUrl"));
-      setLoginButton($("#btnLogin"), $("#messageHandler"), [
+    setWord($("#frmSetWord"));
+    setPointsForm($("#frmPointsForWinning"), $("#pointsForWin"));
+    setRandomWord($("#frmRandomWord"), $("#wordListDictionary"), $("#hideWordFromStreamer"));
+    setErrorContainer($("#errorContainer"));
+    setClearBoardButton($("#btnClear"));
+    setClearBoardButton($("#btnLogin"));
+    setCopyObsUrlButton($("#copyObsUrl"));
+    setLoginButton($("#btnLogin"), $("#messageHandler"), [
         $("#copyObsUrl"),
         $("#frmSetWord"),
         $("#frmRandomWord"),
         $("#btnClear"),
         $("#frmPointsForWinning"),
-      ]);
-      setAlphaControl([$("#alphaTopWordLetterBackground")]);
-      setColorControl([
+    ]);
+    setAlphaControl([$("#alphaTopWordLetterBackground")]);
+    setColorControl([
         $("#clrTopWordLetter"),
         $("#clrTopWordLetterBackground"),
         $("#clrKeyboardLetter"),
@@ -176,11 +215,14 @@
         $("#clrDiscoveredLetters"),
         $("#clrFoundLetters"),
         $("#clrDefaultLetters"),
-      ]);
+        $("#clrWinnerText"),
+        $("#clrWinnerBackground"),
+        $("#clrWinnerBorder"),
+    ]);
 
-      watchChatById("48832442", (...args) => {
+    watchChatById("48832442", (...args) => {
         console.log(args);
-      });
-    </script>
-  </body>
+    });
+</script>
+</body>
 </html>

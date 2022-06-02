@@ -1,10 +1,10 @@
-import { SWClient } from "./swlib/swclient.js";
-import { DB } from "./db.js";
-import { Dev } from "./logger.js";
-import { reloadPage } from "./reloader.js";
+import {SWClient} from "./swlib/swclient.js";
+import {DB} from "./db.js";
+import {Dev} from "./logger.js";
+import {reloadPage} from "./reloader.js";
 
 const nfapi = NowFinityApi();
-var socket = io("http://localhost:3000");
+var socket = io(); //io(`${document.location.protocol}://${document.location.host}:3000`);
 const winnerList = document.getElementById("winnerList");
 const $frmSetWordWord = $("#frmSetWordWord");
 const manageResult = $("#manageResult");
@@ -16,108 +16,128 @@ let $errorContainer = null;
 
 // enable debug
 if (location.search.toLowerCase().includes("debug=true")) {
-  const DEBUG = true;
-  document.getElementById("debugArea").setAttribute("style", "display: block");
+    const DEBUG = true;
+    document.getElementById("debugArea").setAttribute("style", "display: block");
 } else {
-  const DEBUG = false;
+    const DEBUG = false;
 }
 
 
 export function setErrorContainer($eError) {
-  $errorContainer = $eError;
-  swEvents.onError(msg => {
-    $frmSetWordWord.val("");
-    db.addWord("");
-    $frmSetWordWord.focus();
-    showError(msg);
-  });
+    $errorContainer = $eError;
+    swEvents.onError(msg => {
+        $frmSetWordWord.val("");
+        db.addWord("");
+        $frmSetWordWord.focus();
+        showError(msg);
+    });
 }
 
 function showError(msg) {
-  $errorContainer.show();
-  $errorContainer.text(msg);
-  setTimeout(() => $errorContainer.hide(200), 10000);
+    $errorContainer.show();
+    $errorContainer.text(msg);
+    setTimeout(() => $errorContainer.hide(200), 10000);
 }
 
 export function setPointsForm($frm, $inpPoints) {
-  $frm.submit(e => {
-    e.preventDefault();
-    const points = $inpPoints.val();
-    if (points < 1) {
-      showError("Points for a win must be 1 or greater.");
-      return;
-    }
+    $frm.submit(e => {
+        e.preventDefault();
+        const points = $inpPoints.val();
+        if (points < 1) {
+            showError("Points for a win must be 1 or greater.");
+            return;
+        }
 
-    db.setPointsPerWin(points);
-  });
+        db.setPointsPerWin(points);
+    });
 
-  $inpPoints.val(db.getPointsPerWin());
+    $inpPoints.val(db.getPointsPerWin());
 }
 
 export function setWord($frmSetWord) {
-  Dev.Log("setWord click handler");
-  $frmSetWord.submit(e => {
-    e.preventDefault();
-    swEvents.clientEmitNewWord($frmSetWordWord.val(), true);
-  });
+    Dev.Log("setWord click handler");
+    $frmSetWord.submit(e => {
+        e.preventDefault();
+        swEvents.clientEmitNewWord($frmSetWordWord.val(), true);
+    });
 }
 
 export function setRandomWord($form, $wordList, $hide) {
-  Dev.Log("setRandomWord");
-  $form.submit(e => {
-    e.preventDefault();
-    swEvents.clientEmitRandomWord($wordList.val());
-  });
+    Dev.Log("setRandomWord");
+    $form.submit(e => {
+        e.preventDefault();
+        swEvents.clientEmitRandomWord($wordList.val());
+    });
 
-  $hide.change(function () {
-    if (this.checked) {
-      console.log("hide");
-      $frmSetWordWord.attr("type", "password");
-      db.setHideWord(true);
-    } else {
-      console.log("show");
-      $frmSetWordWord.attr("type", "text");
-      db.setHideWord(false);
+    $hide.change(function () {
+        if (this.checked) {
+            console.log("hide");
+            $frmSetWordWord.attr("type", "password");
+            db.setHideWord(true);
+        } else {
+            console.log("show");
+            $frmSetWordWord.attr("type", "text");
+            db.setHideWord(false);
+        }
+    });
+
+    if (db.hideWord()) {
+        $hide.click();
     }
-  });
-
-  if (db.hideWord()) {
-    $hide.click();
-  }
 }
 
 export function setClearBoardButton($btn) {
-  $btn.click(() => swEvents.emitClear());
+    $btn.click(() => swEvents.emitClear());
+}
+
+function getObsUrl() {
+    const {protocol, host} = document.location;
+    const roomId = db.getRoom();
+    const channelId = db.getChannelId();
+    return `${protocol}//${host}/obs?roomId=${roomId}&channelId=${channelId}`;
 }
 
 export function setCopyObsUrlButton($btn) {
-  $btn.click(() => {
-    const { protocol, host } = document.location;
-    const roomId = db.getRoom();
-    const channelId = db.getChannelId();
-    const url = `http://localhost:3000/obs?roomId=${roomId}&channelId=${channelId}`;
-    navigator.clipboard.writeText(url);
-  });
+    const iframe = document.querySelector('#iframePreview')
+    iframe.setAttribute('src', getObsUrl() + "&IS_SETUP=true")
+
+    $btn.click(() => {
+        const url = getObsUrl();
+        if (window.isSecureContext && window.navigator.clipboard) {
+            window.navigator.clipboard.writeText(url);
+        } else {
+            const el = document.querySelector('#streamwordsObsUrl');
+            el.value = url;
+            el.classList.remove('hide')
+        }
+    });
 }
 
 export function setAlphaControl(alphaElements) {
-  alphaElements.forEach($control => {
-     const valueContainerId =  `#${$control.attr('id')}Value`
-    console.log(valueContainerId)
-     const $alphaValueContainer = $(valueContainerId);
-     $control.change( e => {
-        $alphaValueContainer.val($control.val());
-        emitAlphaChange($alphaValueContainer)
-     });
+    alphaElements.forEach($control => {
+        const valueContainerId = `#${$control.attr('id')}Value`
+        const $alphaValueContainer = $(valueContainerId);
+        $control.change(e => {
+            $alphaValueContainer.val($control.val());
+            emitAlphaChange($control.val())
+        });
 
-     $alphaValueContainer.change(e => {
-       emitAlphaChange($alphaValueContainer)
-     });
-  })
+        $alphaValueContainer.change(e => {
+            emitAlphaChange($alphaValueContainer.val())
+        });
+
+        const alphas = db.getAlphas()
+        if (alphas.hasOwnProperty($control.attr('id'))) {
+            const alpha = alphas[$control.attr('id')];
+            $control.val(alpha);
+            $alphaValueContainer.val(alpha);
+        }
+    })
 }
 
-function emitAlphaChange($container) {
-  console.log(`emit new alpha change ${$container.val()}`)
+function emitAlphaChange(alphaValue) {
+    db.setAlpha('alphaTopWordLetterBackground', alphaValue)
+    swEvents.clientEmitColor('alphaTopWordLetterBackground', alphaValue)
 }
 
 // Set the color control element
@@ -128,129 +148,131 @@ function emitAlphaChange($container) {
 // Have client change the appropriate elements color
 /* <input type="color" name="clrTopWordLetter" id="clrTopWordLetter" value="#ff4500" /> */
 export function setColorControl(colorElements) {
-  colorElements.forEach($control => {
-    const name = $control.attr("name");
-    const colors = db.getColors()
+    colorElements.forEach($control => {
+        const name = $control.attr("name");
+        const colors = db.getColors()
 
-    if(colors[name]) {
-      $control.val(colors[name])
-    }
+        if (colors[name]) {
+            console.log("Using existing color")
+            $control.val(colors[name])
+        }
 
-    $control.change(e => {
-      const color = $control.val();
-      console.log(e);
-      db.setColor(name, $control.val())
-      swEvents.clientEmitColor(name, color);
+        $control.change(e => {
+            const color = $control.val();
+            console.log(e);
+            db.setColor(name, $control.val())
+            swEvents.clientEmitColor(name, color);
+        });
     });
-  });
 }
 
 export function setLoginButton($btn, $messageHandler, requireLogin = []) {
-  if (nfapi.isLoggedIn()) {
-    $btn.text("Disconnect from StreamNow/NowFinity");
-  }
-  $btn.click(e => {
-    e.preventDefault();
-
     if (nfapi.isLoggedIn()) {
-      if(window.confirm("Are you sure you want to disconnect"))  {
-        nfapi.logout();
-        $btn.text("Log into StreamNow/NowFinity.");
-        requireLogin.forEach(e => e.hide());
-      }
-    } else {
-      let checkLogin = setInterval(() => {
-        if (nfapi.isLoggedIn()) {
-          requireLogin.forEach(e => e.show());
-          clearTimeout(checkLogin);
-        }
-      }, 100);
-      let popup = window.open(
-          "http://localhost:3000/login.html",
-          "width=600,height=400,status=yes,scrollbars=yes,resizable=yes"
-      );
+        $btn.text("Disconnect from StreamNow/NowFinity");
     }
+    $btn.click(e => {
+        e.preventDefault();
 
-  });
+        if (nfapi.isLoggedIn()) {
+            if (window.confirm("Are you sure you want to disconnect")) {
+                nfapi.logout();
+                $btn.text("Log into StreamNow/NowFinity.");
+                requireLogin.forEach(e => e.hide());
+            }
+        } else {
+            let checkLogin = setInterval(() => {
+                if (nfapi.isLoggedIn()) {
+                    requireLogin.forEach(e => e.show());
+                    clearTimeout(checkLogin);
+                }
+            }, 100);
+            let popup = window.open(
+                `${document.location.protocol}//${document.location.host}/login.html`,
+                "width=600,height=400,status=yes,scrollbars=yes,resizable=yes"
+            );
+        }
 
-  if (!nfapi.isLoggedIn()) {
-    requireLogin.forEach(e => e.hide());
-  }
+    });
+
+    if (!nfapi.isLoggedIn()) {
+        requireLogin.forEach(e => e.hide());
+    }
 }
 
 swEvents.onNFLogin((nfChannelId, nfChannelSignature) => {
-  localStorage.setItem("nf_channelId", nfChannelId);
-  localStorage.setItem("nf_channelSignature", nfChannelSignature);
-  db.setChannelId(nfChannelId);
-  db.setRoom();
-  joinRoom();
+    localStorage.setItem("nf_channelId", nfChannelId);
+    localStorage.setItem("nf_channelSignature", nfChannelSignature);
+    db.setChannelId(nfChannelId);
+    db.setRoom();
+    joinRoom();
 });
 
 swEvents.onReload(() => {
-  Dev.Log("reloading admin");
-  reloadPage(true);
+    Dev.Log("reloading admin");
+    reloadPage(true);
 });
 
 swEvents.onRandomWordSet(w => {
-  db.addWord(w);
-  $frmSetWordWord.val(w);
+    db.addWord(w);
+    $frmSetWordWord.val(w);
 });
 
 swEvents.onConnect(() => {
-  if (nfapi.isLoggedIn()) {
-    joinRoom();
-  }
+    if (nfapi.isLoggedIn()) {
+        joinRoom();
+    }
 });
 
 function joinRoom() {
-  swEvents.joinRoom(db.getRoom());
-  if (db.hasWord()) {
-    swEvents.clientEmitNewWord(db.getWord(), false);
-  }
+    swEvents.joinRoom(db.getRoom());
+    if (db.hasWord()) {
+        swEvents.clientEmitNewWord(db.getWord(), false);
+    }
 }
 
 swEvents.onWinner(msg => {
-  Dev.Log(msg);
-  Dev.Log(JSON.parse(msg));
-  const { name, word, userId } = JSON.parse(msg);
-  db.addWinner(name, word);
-  updateWinnerList();
-  addPointsForWinner(name, userId, word);
+    Dev.Log(msg);
+    Dev.Log(JSON.parse(msg));
+    const {name, word, userId} = JSON.parse(msg);
+    db.addWinner(name, word);
+    updateWinnerList();
+    addPointsForWinner(name, userId, word);
 });
 
 function addPointsForWinner(name, userId, word) {
-  nfapi
-    .put("rest/transaction", {
-      userId: userId,
-      username: name,
-      amount: db.getPointsPerWin(),
-      description: `StreamWords Reward: ${word}`,
-      isManual: false,
-      isReward: true, // count to level?
-      preBalanceValidation: false, // pre-validate balance before withdraw points to check if the viewer has enogh points
-    })
-    .then(response => {
-      manageResult.text(`Winner ${response.channeluser.username} was awarded ${response.transaction.amount} points.`);
-    })
-    .catch(error => {
-      manageResult.text(JSON.stringify(error, null, 2));
-    });
+    nfapi
+        .put("rest/transaction", {
+            userId: userId,
+            username: name,
+            amount: db.getPointsPerWin(),
+            description: `StreamWords Reward: ${word}`,
+            isManual: false,
+            isReward: true, // count to level?
+            preBalanceValidation: false, // pre-validate balance before withdraw points to check if the viewer has enogh points
+        })
+        .then(response => {
+            manageResult.text(`Winner ${response.channeluser.username} was awarded ${response.transaction.amount} points.`);
+        })
+        .catch(error => {
+            manageResult.text(JSON.stringify(error, null, 2));
+        });
 }
 
 function updateWinnerList() {
-  let winners = db.getWinners();
-  winnerList.innerHTML = "";
-  winners.forEach(({ name, word }) => {
-    let li = document.createElement("li");
-    li.innerText = `${name} (${word})`;
-    winnerList.appendChild(li);
-  });
+    let winners = db.getWinners();
+    winnerList.innerHTML = "";
+    winners.forEach(({name, word}) => {
+        let li = document.createElement("li");
+        li.innerText = `${name} (${word})`;
+        winnerList.appendChild(li);
+    });
 }
+
 updateWinnerList();
 
 // If we have a word set, populate the word input
 if (db.hasWord()) {
-  $frmSetWordWord.val(db.getWord());
+    $frmSetWordWord.val(db.getWord());
 }
 
 Dev.Info("Admin loaded.");

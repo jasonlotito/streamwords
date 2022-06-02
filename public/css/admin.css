@@ -1,6 +1,9 @@
 * {
   font-family: sans-serif;
   font-size: 16px;
+  box-sizing: border-box;
+  margin:0;
+  padding:0;
 }
 
 a {
@@ -8,12 +11,24 @@ a {
   text-decoration: none;
   font-weight: bold;
 }
-
+h2 {
+  margin-top: 10px;
+}
+p, span {
+  line-height: 1.5em;
+  margin: 5px 0;
+}
 input,
 select,
 button {
-  /* padding: 5px 10px; */
+  padding: 5px 10px;
   font-size: 16px;
+}
+input[type=range] {
+  padding: 5px 0;
+  width: 80%;
+  margin: 0 auto;
+  display: block;
 }
 
 button {
@@ -24,19 +39,66 @@ label {
   display: inline-block;
   /*width: 200px;*/
 }
+.tabs li {
+  float: left;
+  display: block;
+}
+.tabs {
+  float: none;
+  list-style: none;
+  position: relative;
+margin: 0;padding: 0;}
+
+.tabs li {
+  float: left;
+  display: block;
+}
+
+.tabs input.tab[type="radio"] {
+  position: absolute;
+  top: 0;
+  left: -99999px;
+}
+
+.tabs label.tab {
+  display: block;
+  padding: 10px 20px;
+  cursor: pointer;
+  position: relative;
+}
+
+.tabs .tab-content {
+  z-index: 2;
+  display: none;
+  overflow: hidden;
+  position: absolute;
+  text-align: left;
+  left: 0;
+left: 0;}
+
+.tabs [id^="app"]:checked + label {
+  top: 0;
+  background: #333;
+  font-weight: bold;
+}
+
+.tabs [id^="app"]:checked ~ [id^="app"] {
+  display: block;
+}
 
 fieldset,
 details {
-  margin-top: 10px;
+  margin-top: 5px;
   display: flex;
   flex-direction: column;
-  row-gap: 20px;
-  border-radius: 10px;
-  border-width: 10px;
+  row-gap: 10px;
+  border-radius: 4px;
+  border-width: 4px;
   border-bottom-style: ridge;
   border-right-style: ridge;
   border-top-style: groove;
   border-left-style: groove;
+  padding: 5px;
 }
 
 fieldset.buttons,
@@ -48,8 +110,7 @@ details.row {
 h1 {
   font-size: 2.2em;
   font-weight: bold;
-  /*color: #fff;*/
-  text-align: center;
+  text-align: left;
 }
 
 h1 span {
@@ -79,16 +140,27 @@ body {
     "footer" auto
     / 1fr;
   user-select: none;
+  padding: 0 4px;
 }
 
 @media (min-width: 40em) {
-  .main {
+  .tab-content {
     display: grid;
     grid-gap: 1em;
-    grid:
-      "manage settings"
-      / 1fr 1fr;
+    grid: "settings preview" / 1fr 2fr ;
+    vertical-align: top;
   }
+
+  .manage {
+    max-width: 400px;
+    min-width: 400px;
+    height: 80vh;
+    overflow-y: auto;
+  }
+}
+
+.hide {
+  display: none;
 }
 
 header {
@@ -98,13 +170,26 @@ header {
 .main {
   grid-area: main;
 }
-
+.header {
+  grid-area: header;
+}
+.footer {
+  grid-area: footer;
+}
+section.preview {
+  grid-area: preview;
+}
 section.manage {
   grid-area: manage;
 }
 
 section.info {
   grid-area: info;
+}
+
+section {
+  vertical-align: top;
+  display: inline-block;
 }
 
 footer {
@@ -137,15 +222,12 @@ footer {
   user-select: text;
 }
 
-details {
-  padding: 10px;
-}
-
 summary {
-  font-size: 2em;
+  font-size: 1.5em;
   cursor: pointer;
 }
 
 #winnerList li {
   user-select: text;
+  float: none;
 }

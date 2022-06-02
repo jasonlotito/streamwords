@@ -15,6 +15,20 @@ function loopLetters(word, cb) {
     }
 }
 
+function hexToRgbA(hex, alpha=100){
+    var c;
+    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.substring(1).split('');
+        if(c.length === 3){
+            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x'+c.join('');
+        alpha = alpha/100;
+        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+`,${alpha})`;
+    }
+    throw new Error('Bad Hex');
+}
+
 Word.prototype.setFoundColor = function (foundColor) {
     this.foundColor = foundColor;
     this.refreshColors();
@@ -27,6 +41,7 @@ Word.prototype.setBackgroundColor = function(color) {
 
 Word.prototype.setBackgroundAlpha = function(alpha) {
     this.backgroundAlpha = alpha;
+    this.refreshColors();
 }
 
 Word.prototype.refreshColors = function() {
@@ -38,7 +53,8 @@ Word.prototype.refreshColors = function() {
         }
     })
 
-    this.el.css('background-color', this.backgroundColor);
+    const bgColor = hexToRgbA(this.backgroundColor, this.backgroundAlpha)
+    this.el.css('background-color', bgColor);
 }
 Word.prototype.isVisible = function (visible) {
     this.visible = visible;
@@ -51,11 +67,10 @@ Word.prototype.show = function (word) {
         loopLetters(word, (chr) => {
             const $letter = $(`<span>${chr}</span>`)
             $letter.attr('x-state', 'unfound');
-            $letter.css('border-bottom', `10px solid ${this.foundColor}`)
             this.el.append($letter)
         })
 
-        this.el.css('background-color', this.backgroundColor);
+        this.refreshColors()
     }
 
 

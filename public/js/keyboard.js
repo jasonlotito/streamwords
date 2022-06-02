@@ -89,6 +89,10 @@ Keyboard.prototype.refreshColors = function() {
     });
 }
 
+Keyboard.FIND_FOUND = 1;
+Keyboard.FIND_USED = 0;
+Keyboard.FIND_UNUSED = 3;
+
 Keyboard.prototype.markLetterFound = function (findType, letter) {
     const idx = this.alphabet.indexOf(letter);
 
@@ -104,8 +108,11 @@ Keyboard.prototype.markLetterFound = function (findType, letter) {
             $letter.attr('x-state', 'found')
             break;
         case 0:
-            $letter.css('color', this.usedColor);
-            $letter.attr('x-state', 'used')
+            // This prevents a letter being found from reverting back to used only
+            if($letter.attr('x-state') !== 'found') {
+                $letter.css('color', this.usedColor);
+                $letter.attr('x-state', 'used')
+            }
             break;
         default:
             $letter.css('color', this.unusedColor);

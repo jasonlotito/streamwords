@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "electron .",
+    "start": "node server.js",
     "dev": "nodemon server.js -e 'js html'",
     "devwin": "nodemon.cmd server.js -e 'js html'"
   },
@@ -13,7 +13,8 @@
   "license": "ISC",
   "devDependencies": {
     "electron": "^18.2.0",
-    "nodemon": "^2.0.15"
+    "nodemon": "^2.0.15",
+    "prettify": "^0.1.7"
   },
   "dependencies": {
     "bad-words": "^3.0.4",

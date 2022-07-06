@@ -1,16 +1,10 @@
-const electron = require("electron");
-// const BrowserWindow = electron.BrowserWindow;
-// const electronApp = electron.app;
-// const shell = electron.shell;
-// const protocol = electron.protocol;
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
-// const { fileURLToPath } = require("url");
-// const { dirname } = require("path");
 const { SWServer, EVENTS } = require("./public/js/swlib");
 const wordlist = require("wordlist-english");
 const Filter = require("bad-words");
+const PORT = process.env.PORT || 3000;
 
 var americanWords = wordlist["english/american"];
 var australianWords = wordlist["english/australian"];
@@ -29,11 +23,7 @@ const { log, info, error, debug } = console;
 app.use(express.static(`${__dirname}/public`));
 
 app.get("/obs", (req, res) => {
-  res.sendFile(__dirname + "/public/index.html");
-});
-
-app.get("/favicon.ico", (req, res) => {
-  return;
+  res.sendFile(__dirname + "/public/obs.html");
 });
 
 app.get("/admin", (req, res) => {
@@ -69,7 +59,6 @@ io.on("connection", (socket) => {
       swServer.serverEmitNewWord(wordList.get(room));
     }
   });
-
 
   swServer.onNFLogin((channelId, channelSignature) => {
     console.log("NFLogin", channelId, channelSignature);
@@ -130,6 +119,9 @@ io.on("connection", (socket) => {
   }
 
   swServer.onRandomWord((dict) => {
+    // TODO Let's put a rate limiter on this
+    // TODO In fact, let's put a global rate limiter on everything!
+    dict = dict ?? "english";
     const list = dict.toLowerCase();
     let word = "";
     word = getRandomWord(list, 10);
@@ -179,6 +171,6 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(3000, () => {
-  console.log('Listening at http://localhost:3000')
+httpServer.listen(PORT, () => {
+  console.log(`Listening at http://localhost:${PORT}`)
 });

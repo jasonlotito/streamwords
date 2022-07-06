@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!--    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>-->
+    <!--    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>-->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script type="text/babel" src="js/useLocalStorage.js"></script>
+    <script type="text/babel" src="js/constants.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <style>
+        * {margin: 0; padding: 0; box-sizing: border-box}
+        #app > div {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body>
+<div id="app"></div>
+<script type="text/babel">
+
+    function DSSetings() {
+        const [count, setCount] = useLocalStorage("count", 0);
+
+        const [lastSection, setLastSection] = React.useState('colors');
+        return (
+            <div>
+                <details>
+                    <summary>Main</summary>
+                    <nav>
+                        <a href="#" onClick={() => setLastSection('colors')}>Colors</a>
+                        <a href="#" onClick={() => setLastSection('words')}>Words</a>
+                    </nav>
+                </details>
+                <section>
+                    {lastSection === 'colors' &&
+                        <div>
+                            <DSColorSetting name={Data.primaryColor}/>
+                            <DSColorSetting name={Data.secondaryColor}/>
+                            <DSColorSetting name={Data.foundLetterColor}/>
+                            <DSColorSetting name={Data.unfoundLetterColor}/>
+                            <DSColorSetting name={Data.discoveredLetterColor}/>
+                            <DSColorSetting name={Data.unusedLetterColor}/>
+                        </div>
+                    }
+                    {lastSection === 'words' &&
+                        <div>
+
+                        </div>
+                    }
+                </section>
+
+                <section>
+                    Main section
+                </section>
+            </div>
+        )
+    }
+
+    function DSColorSetting(props) {
+        const [color, setColor] = useLocalStorage(props.name, null);
+        if (!color) {
+            setColor('#ff4900');
+        }
+
+        function handleChange(event) {
+            setColor(event.target.value)
+        }
+
+        return (
+            <div>
+                <label>
+                    <input type="color" name={props.name} id={props.name} value={color}
+                           onChange={handleChange}/>
+                    &nbsp;{props.name.replace(/([A-Z])/g, ' $1').replace(/^./, l => l.toUpperCase())}
+                </label>
+            </div>
+        )
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('app'));
+    root.render(React.createElement(DSSetings))
+</script>
+</body>
+</html>

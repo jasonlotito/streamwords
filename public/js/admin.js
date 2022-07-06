@@ -2,13 +2,20 @@ import {SWClient} from "./swlib/swclient.js";
 import {DB} from "./db.js";
 import {Dev} from "./logger.js";
 import {reloadPage} from "./reloader.js";
+// import {OBSWebSocket} from "./vendor/obs-websocket.min";
 
+// const obs = new OBSWebSocket();
+/*
+#TODO URL param to hide preview
+#TODO Setting width for settings config
+#TODO Only shows specific settings (such as Streamwords and Global Settings)
+#TODO URL Param for source (Such as YouNow)
+ */
 const nfapi = NowFinityApi();
-var socket = io(); //io(`${document.location.protocol}://${document.location.host}:3000`);
+var socket = io();
 const winnerList = document.getElementById("winnerList");
 const $frmSetWordWord = $("#frmSetWordWord");
 const manageResult = $("#manageResult");
-const params = new URLSearchParams(location.search);
 const swEvents = new SWClient(socket, nfapi);
 const db = DB;
 
@@ -21,7 +28,6 @@ if (location.search.toLowerCase().includes("debug=true")) {
 } else {
     const DEBUG = false;
 }
-
 
 export function setErrorContainer($eError) {
     $errorContainer = $eError;
@@ -39,12 +45,12 @@ function showError(msg) {
     setTimeout(() => $errorContainer.hide(200), 10000);
 }
 
-export function setPointsForm($frm, $inpPoints) {
-    $frm.submit(e => {
+export function setPointsForm($inpPoints) {
+    $inpPoints.change( e => {
         e.preventDefault();
         const points = $inpPoints.val();
-        if (points < 1) {
-            showError("Points for a win must be 1 or greater.");
+        if (points < 0) {
+            showError("Points for a win must be 0 or greater.");
             return;
         }
 
@@ -86,8 +92,14 @@ export function setRandomWord($form, $wordList, $hide) {
     }
 }
 
-export function setClearBoardButton($btn) {
-    $btn.click(() => swEvents.emitClear());
+export function setClearBoardButton(btns) {
+    btns.forEach($btn => {
+        $btn.click(() => {
+            if(confirm("Clear the board?")) {
+                swEvents.emitClear()
+            }
+        });
+    })
 }
 
 function getObsUrl() {
@@ -105,6 +117,8 @@ export function setCopyObsUrlButton($btn) {
         const url = getObsUrl();
         if (window.isSecureContext && window.navigator.clipboard) {
             window.navigator.clipboard.writeText(url);
+            $btn.text("Copied!");
+            setTimeout(()=>$btn.text("Copy OBS Browser URL"), 10000);
         } else {
             const el = document.querySelector('#streamwordsObsUrl');
             el.value = url;
@@ -166,9 +180,10 @@ export function setColorControl(colorElements) {
     });
 }
 
-export function setLoginButton($btn, $messageHandler, requireLogin = []) {
+export function setLoginButton($btn, $messageHandler, $login, $streamWordsSettings) {
     if (nfapi.isLoggedIn()) {
         $btn.text("Disconnect from StreamNow/NowFinity");
+        $streamWordsSettings.attr('open', true);
     }
     $btn.click(e => {
         e.preventDefault();
@@ -177,35 +192,45 @@ export function setLoginButton($btn, $messageHandler, requireLogin = []) {
             if (window.confirm("Are you sure you want to disconnect")) {
                 nfapi.logout();
                 $btn.text("Log into StreamNow/NowFinity.");
-                requireLogin.forEach(e => e.hide());
             }
         } else {
-            let checkLogin = setInterval(() => {
-                if (nfapi.isLoggedIn()) {
-                    requireLogin.forEach(e => e.show());
-                    clearTimeout(checkLogin);
-                }
-            }, 100);
-            let popup = window.open(
-                `${document.location.protocol}//${document.location.host}/login.html`,
-                "width=600,height=400,status=yes,scrollbars=yes,resizable=yes"
-            );
+            nfapi
+                .requestAuth()
+                .then((channelId) => {
+                    const nfChannelId = localStorage.getItem("nf_channelId");
+                    const nfChannelSignature = localStorage.getItem("nf_channelSignature");
+                    handleLogin(nfChannelId, nfChannelSignature)
+                    $login.attr('open', false)
+                    $streamWordsSettings.attr('open', true);
+                })
+                .catch(() => {
+                    let msg =
+                        "Failed to connect with StreamNow/NowFinity. Please make sure you are logged into StreamNow.pro and connected to the NowFinity Points system. You will also need to grant access to your NowFinity Account.";
+                    $manageResult.text("Failed to login.");
+                    //showError("Failed to connect with StreamNow/NowFinity.");
+                    $messageHandler.html(
+                        `Please log into <a target="_blank" href="https://streamnow.pro">StreamNow.pro</a>. <p>${msg}`
+                    );
+                });
         }
 
     });
 
     if (!nfapi.isLoggedIn()) {
-        requireLogin.forEach(e => e.hide());
+        // TODO Make this work for the new layout and UI
+        // TODO Make it so when the page is loaded, all this information can be provided via the URL
+        $login.attr('open', true);
     }
 }
-
-swEvents.onNFLogin((nfChannelId, nfChannelSignature) => {
+function handleLogin (nfChannelId, nfChannelSignature) {
     localStorage.setItem("nf_channelId", nfChannelId);
     localStorage.setItem("nf_channelSignature", nfChannelSignature);
     db.setChannelId(nfChannelId);
     db.setRoom();
     joinRoom();
-});
+}
+
+swEvents.onNFLogin(handleLogin);
 
 swEvents.onReload(() => {
     Dev.Log("reloading admin");
@@ -240,6 +265,10 @@ swEvents.onWinner(msg => {
 });
 
 function addPointsForWinner(name, userId, word) {
+    if (db.getPointsPerWin() < 1) {
+       return;
+    }
+
     nfapi
         .put("rest/transaction", {
             userId: userId,

@@ -178,12 +178,12 @@ function setColorOnElement(colorName, color) {
         case 'clrWinnerText':
             $el.css('color', color);
             break;
-        case 'clrWinnerBorder':
-            $el.css('border-color', color);
-            break;
-        case 'clrWinnerBackground':
-            $el.css('background-color', color);
-            break;
+        // case 'clrWinnerBorder':
+        //     $el.css('border-color', color);
+        //     break;
+        // case 'clrWinnerBackground':
+        //     $el.css('background-color', color);
+        //     break;
         case 'clrTopWordLetter':
             word.setFoundColor(color)
             break;
@@ -261,7 +261,7 @@ function processWinner(msg) {
 function processLetters(guess) {
     word.compare(guess).forEach((findType, letter) => keyboard.markLetterFound(findType, letter));
 }
-
+const recentPlayers = new Set();
 function handleMessage(message) {
     // This handles Zero's plugin for naught words, naughty naughty!
     let magicChar = String.fromCharCode(8203);

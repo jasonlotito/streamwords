@@ -18,16 +18,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
 </head>
-<body class="">
+<body>
 <div class="container">
-    <aside class="flex-column sidebar">
+    <aside id="settings" class="flex-column sidebar">
         <header>
             <h1>
                 DamnScout Software
             </h1>
         </header>
         <div class="error" id="errorContainer">This is an error message.</div>
-        <details id="streamWordsSettings">
+        <details id="StreamWordsSettings" class="game-settings">
             <summary>StreamWords</summary>
             <div id="appStreamWordsContent" class="tab-content">
                 <section class="manage">
@@ -57,6 +57,7 @@
                                 <label for="hideWordFromStreamer" class="hide">Hide Word From Me</label>
                                 <input type="checkbox" name="hideWord" id="hideWordFromStreamer" class="hide"/>
                                 <p>Will pick a random word between 4-6 characters long. Makes for the best games!</p>
+                                <p>Suggest that you close the Custom Word Game section if you want to play as the stream so you don't see the answer.</p>
                             </div>
                             <div>
                                 <button type="submit" class="primary" id="setRandomWord">Set Random Word</button>
@@ -156,8 +157,9 @@
                 </section>
             </div>
         </details>
-        <details id="replay">
+        <details id="LiveReplaySettings" class="game-settings">
             <summary>Live Replay</summary>
+            <div class="error" style="display: block">This is currently not live yet.</div>
             <details>
                 <summary>OBS WebSocket Settings</summary>
                 <div>
@@ -187,7 +189,7 @@
             </details>
         </div>
     </aside>
-    <div class="col main">
+    <div id="preview" class="col main">
         <section class="preview">
             <h1>Preview</h1>
             <iframe id="iframePreview" src="" width="800px" height="400px"></iframe>
@@ -211,15 +213,18 @@
         setCopyObsUrlButton,
         setColorControl,
         setAlphaControl,
+        setPreview,
+        setSettings,
     } from "./js/admin.js";
-
+    setSettings($('#settings'));
+    setPreview($('#preview'));
     setWord($("#frmSetWord"));
     setPointsForm($("#pointsForWin"));
     setRandomWord($("#frmRandomWord"), $("#wordListDictionary"), $("#hideWordFromStreamer"));
     setErrorContainer($("#errorContainer"));
     setClearBoardButton([$("#btnClear"), $("#btnClear2")]);
     setCopyObsUrlButton($("#copyObsUrl"));
-    setLoginButton($("#btnLogin"), $("#messageHandler"), $("#login"), $("#streamWordsSettings"));
+    setLoginButton($("#btnLogin"), $("#messageHandler"), $("#login"), $("#StreamWordsSettings"));
     setAlphaControl([$("#alphaTopWordLetterBackground")]);
     setColorControl([
         $("#clrTopWordLetter"),

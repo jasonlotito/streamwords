@@ -1,11 +1,46 @@
+:root {
+  --background-color: #ddd;
+  --primaryColor: rgba(0, 0, 255, .5);
+  --secondaryColor: rgba(0, 0, 255, .10);
+  --errorBorder: rgba(255, 0, 0, .5);
+  --errorBackground: rgba(255, 0, 0, .75);
+  --buttonBorder: black;
+  --inputBorder: black;
+  --callToAction: rgba(69, 255, 0, .5);
+  --separator: rgba(0,0,0,.2);
+  --fontColor: #222;
+  --inverseFontColor: #ddd;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #222;
+    --primaryColor: rgba(18, 18, 18, 1);
+    --secondaryColor: rgba(78, 78, 78, .5);
+    --errorBorder: rgba(255, 0, 0, .5);
+    --errorBackground: rgba(255, 0, 0, .75);
+    --buttonBorder: black;
+    --inputBorder: black;
+    --callToAction: rgba(69, 255, 0, .5);
+    --separator: rgba(255,255,255,.2);
+    --fontColor: #ddd;
+    --inverseFontColor: #222;
+  }
+}
 
 * {
   font-family: 'Roboto', sans-serif;
+  color: var(--fontColor);
+}
+
+
+#preview {
+  display: none;
 }
 
 body {
   margin: 0;
   padding: 0;
+  background-color: var(--background-color);
 }
 
 h1 {
@@ -16,7 +51,6 @@ h1 {
 
 .container {
   display: flex;
-  gap: 10px;
   height: 100vh;
 }
 
@@ -33,6 +67,7 @@ summary {
   list-style: none;
   font-weight: bold;
   width: 100%;
+  user-select: none;
 }
 
 details[open] > summary {
@@ -40,19 +75,19 @@ details[open] > summary {
 }
 
 details {
-  border: 2px solid rgba(0, 0, 255, .5);
+  border: 2px solid var(--primaryColor);
   margin: 0 0 10px 0;
   padding: 10px;
   border-radius: 5px;
-  background-color: rgba(0, 0, 255, .10)
+  background-color: var(--secondaryColor)
 }
 
 .error {
-  border: 2px solid rgba(255, 0, 0, .5);
+  border: 2px solid var(--errorBorder);
   margin: 0 10px 10px 0;
   padding: 10px;
   border-radius: 5px;
-  background-color: rgba(255, 0, 0, .75);
+  background-color: var(--errorBackground);
   color: #ffffff;
   font-weight: bold;
 }
@@ -60,33 +95,34 @@ details {
 button {
   padding: 5px 10px;
   font-size: 1em;
-  border: 1px solid black;
+  border: 1px solid var(--buttonBorder);
   border-radius: 5px;
   cursor: pointer;
+  color: var(--inverseFontColor);
 }
 
 input[type=text], input[type=number] {
   padding: 5px 5px;
   font-size: 1em;
-  border: 1px solid black;
+  border: 1px solid var(--inputBorder);
   border-radius: 5px;
+  color: var(--inverseFontColor)
 }
 
 input[type=color] {
   height: 40px;
   width: 40px;
 }
-
 .sidebar {
   box-shadow: 0 0 10px rgba(0, 0, 0, .95);
-  background-color: rgba(0, 0, 255, .10);
+  background-color: var(--secondaryColor) ;
   padding: 10px;
   border-radius: 5px;
-  border: 4px solid rgba(0, 0, 255, .1)
+  border: 4px solid var(--primaryColor);
 }
 
 iframe {
-  border: 4px solid rgba(0, 0, 255, .25);
+  border: 4px solid var(--primaryColor);
   border-radius: 5px;
 }
 
@@ -96,7 +132,7 @@ iframe {
 
 button.primary {
   width: 60%;
-  background-color: rgba(69, 255, 0, .5);
+  background-color: var(--callToAction);
 }
 
 button.only.primary {
@@ -108,7 +144,7 @@ select {
 }
 
 .style-settings div {
-  border-top: 2px dashed rgba(0, 0, 0, .2);
+  border-top: 2px dashed var(--separator);
   margin: 10px;
   padding: 10px 0 0 0;
 }

@@ -6,10 +6,7 @@ import {reloadPage} from "./reloader.js";
 
 // const obs = new OBSWebSocket();
 /*
-#TODO URL param to hide preview
-#TODO Setting width for settings config
-#TODO Only shows specific settings (such as Streamwords and Global Settings)
-#TODO URL Param for source (Such as YouNow)
+#TODO URL Param for source (Such as YouNow) YouNow is the default source
  */
 const nfapi = NowFinityApi();
 var socket = io();
@@ -18,6 +15,7 @@ const $frmSetWordWord = $("#frmSetWordWord");
 const manageResult = $("#manageResult");
 const swEvents = new SWClient(socket, nfapi);
 const db = DB;
+const params = new URLSearchParams(location.search);
 
 let $errorContainer = null;
 
@@ -27,6 +25,33 @@ if (location.search.toLowerCase().includes("debug=true")) {
     document.getElementById("debugArea").setAttribute("style", "display: block");
 } else {
     const DEBUG = false;
+}
+
+export function setSettings($settings) {
+    if(params.has('sw')) {
+        const width = params.get('sw');
+        $settings.css('width', width);
+        $settings.css('min-width', 'none');
+        $settings.css('max-width', 'none');
+    }
+
+    if(params.has('show')) {
+        const showSettings = params.get('show');
+        const gameSettings = Array.from($('.game-settings'));
+        gameSettings.forEach(settings => {
+            if (settings.id !== `${showSettings}Settings`) {
+                $(settings).hide();
+            }
+        })
+    }
+}
+
+export function setPreview($preview) {
+    if(params.has('hp')) {
+        $preview.hide();
+    } else {
+        $preview.show();
+    }
 }
 
 export function setErrorContainer($eError) {

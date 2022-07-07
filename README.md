@@ -22,6 +22,20 @@ add `show=StreamWords` and this will hide everything except the
 `https://younow.damnscout.com/admin?hp&sw=100%&show=StreamWords` will
 only show the `StreamWords` settings along with the Global Settings. This
 makes the settings easier to embed into other platforms.
+
 ## StreamWords
 
 Info coming soon.
+
+### TODO
+
+* Create a Tutorial on how to use StreamWords
+* Error Logging, Alerts
+* Improve deployment
+* Remember Config panel state on reload
+* Additional language support (Spanish?)
+* Tournament Mode
+* Minor Automation? Do like N words on a timer.
+* Player cool down. Can't just spam guesses.
+* Logo for StreamWords and DSS (DamnScout Software)?
+* Word Finder version game thingy

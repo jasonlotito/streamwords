@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script crossorigin src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<div id="game"></div>
+<script type="text/babel" data-presets="react">
+  // import React from "https://unpkg.com/react@18.2.0/umd/react.production.min.js";
+  // import ReactDOM from "https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js";
+  const {useEffect, useState} = React;
+  const socket = io();
+  function App() {
+    const [state, setState] = useState({
+      letters: ["m", "e", "r", "c", "h", "a", "n", "t"],
+      players: [],
+      wordsGuessed: ["rant", "term"],
+    });
+    useEffect(() => {
+      socket.on("connection", console.log)
+      socket.emit
+
+    }, [])
+    return (
+      <div>
+        <h1>Hello world</h1>
+      </div>
+    )
+  }
+  ReactDOM.render(<App/>, document.getElementById('game'));
+</script>
+</body>
+</html>

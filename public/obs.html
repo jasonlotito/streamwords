@@ -179,6 +179,20 @@
       }
     }
   </style>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1YCXDZMNQ1"></script>
+  <script>
+    const p = new URLSearchParams (window.location.search);
+    const channelId = localStorage.getItem('com.jasonml.channelId');
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-1YCXDZMNQ1', {
+      'page_title': `streamwords-${channelId}`
+    });
+  </script>
+
 </head>
 <body>
 <div id="game">

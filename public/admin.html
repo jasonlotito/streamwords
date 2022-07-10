@@ -154,6 +154,34 @@
                             <input type="text" name="obsUrl" id="streamwordsObsUrl" class="hide">
                         </fieldset>
                     </details>
+                    <details>
+                        <summary>How to Play</summary>
+                        <h2>Basic Rules</h2>
+                        <p>The streamer can set the word either manually or by letting the game choose a random word. Words randomly chosen are between 4-6 characters long, as this is generally the most fun. Words are generally on the easier side, so they shouldn't be obscure words. Finally, we currently only support English words.</p>
+                        <h2>Particpating</h2>
+                        <p>The game watches your streams chat for chat messages. For a message to be a valid guess, it must meet the following criteria:</p>
+                        <ul>
+                            <li>Be a real English word in our dictionary.</li>
+                            <li>Be the same length as the hidden word.</li>
+                        </ul>
+                        <p>This means players can't just type in <em>aaaa</em> for a 4-letter word to see if it
+                        contains the letter A.</p>
+                        <h2>What do the colors mean?</h2>
+                        <p>There are several colors, and they all mean something different.</p>
+                        <dl>
+                            <dt>Keyboard Letter Color <div id="clrKeyboardLetterSample" class="color-sample"></div></dt>
+                            <dd>This is the starting color of the letters when the round starts.</dd>
+                            <dt>Unused Letter<div id="clrUnusedLetterSample" class="color-sample"></div></dt>
+                            <dd>This is the color of a letter that is <em>NOT</em> used in the word.</dd>
+                            <dt>Discovered Letter<div id="clrDiscoveredLettersSample" class="color-sample"></div></dt>
+                            <dd>This is the color of a letter that <em>IS</em> used in the word, but it's position has not been found yet.</dd>
+                            <dt>Found Letter<div id="clrFoundLettersSample" class="color-sample"></div></dt>
+                            <dd>This is the color of a letter that <em>HAS</em> at least one position discovered. This letter can be in other positions, but at least one position has been found.</dd>
+                        </dl>
+                        <p>Using these color indicators can help indicate which letters are still available in guesting the words.</p>
+                        <h2>How do I win?</h2>
+                        <p>Be the first person to type in the word in chat. Note, this is the first word that's retrieved by the software, and it won't necessarily be the same as the order on screen, as chat will generally show your chat before it actually reaches the server.</p>
+                    </details>
                 </section>
             </div>
         </details>

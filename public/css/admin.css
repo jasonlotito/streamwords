@@ -10,6 +10,8 @@
   --separator: rgba(0,0,0,.2);
   --fontColor: #222;
   --inverseFontColor: #ddd;
+  --buttonColor: #222;
+  --buttonCTAFont: #222;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -24,7 +26,16 @@
     --separator: rgba(255,255,255,.2);
     --fontColor: #ddd;
     --inverseFontColor: #222;
+    --buttonColor: #222;
+    --buttonCTAFont: #222;
   }
+}
+.color-sample {
+  float:right;
+  border: 2px solid black;
+  background-color: #fff;
+  width: 2em;
+  height: 2em;
 }
 
 * {
@@ -98,7 +109,7 @@ button {
   border: 1px solid var(--buttonBorder);
   border-radius: 5px;
   cursor: pointer;
-  color: var(--inverseFontColor);
+  color: var(--buttonColor);
 }
 
 input[type=text], input[type=number] {
@@ -106,7 +117,7 @@ input[type=text], input[type=number] {
   font-size: 1em;
   border: 1px solid var(--inputBorder);
   border-radius: 5px;
-  color: var(--inverseFontColor)
+  color: var(--buttonColor)
 }
 
 input[type=color] {
@@ -133,6 +144,7 @@ iframe {
 button.primary {
   width: 60%;
   background-color: var(--callToAction);
+  color: var(--buttonCTAFont);
 }
 
 button.only.primary {

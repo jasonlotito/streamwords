@@ -190,10 +190,19 @@ export function setColorControl(colorElements) {
     colorElements.forEach($control => {
         const name = $control.attr("name");
         const colors = db.getColors()
+        const $sample = $(`#${$control.attr('id')}Sample`)
 
         if (colors[name]) {
             console.log("Using existing color")
             $control.val(colors[name])
+            if($sample.length) {
+                $sample.css('background-color', colors[name]);
+            }
+        } else {
+            db.setColor(name, $control.val())
+            if($sample.length) {
+                $sample.css('background-color', $control.val());
+            }
         }
 
         $control.change(e => {
@@ -201,6 +210,9 @@ export function setColorControl(colorElements) {
             console.log(e);
             db.setColor(name, $control.val())
             swEvents.clientEmitColor(name, color);
+            if ($sample.length) {
+                $sample.css('background-color', color);
+            }
         });
     });
 }

@@ -144,11 +144,10 @@ export function setCopyObsUrlButton($btn) {
             window.navigator.clipboard.writeText(url);
             $btn.text("Copied!");
             setTimeout(()=>$btn.text("Copy OBS Browser URL"), 10000);
-        } else {
-            const el = document.querySelector('#streamwordsObsUrl');
-            el.value = url;
-            el.classList.remove('hide')
         }
+        const el = document.querySelector('#streamwordsObsUrl');
+        el.value = url;
+        el.classList.remove('hide')
     });
 }
 

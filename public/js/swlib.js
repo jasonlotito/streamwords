@@ -203,7 +203,7 @@ class SWServer {
   }
 
   emitNFLogin(nfChannelId, nfChannelSignature) {
-    this.io.emit(
+    this.sock.emit(
       EVENTS.NF_LOGIN,
       JSON.stringify({
         nfChannelId,

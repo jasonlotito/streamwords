@@ -198,7 +198,7 @@ class SWServer {
 
   setupColorHandler() {
     this.sock.on(EVENTS.SET_COLOR, (msg) => {
-      this.io.emit(EVENTS.SET_COLOR, msg);
+      this.emit(EVENTS.SET_COLOR, msg);
     });
   }
 

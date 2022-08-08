@@ -183,7 +183,7 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-1YCXDZMNQ1"></script>
   <script>
     const p = new URLSearchParams (window.location.search);
-    const channelId = localStorage.getItem('com.jasonml.channelId');
+    const channelId = p.get('channelId')
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
